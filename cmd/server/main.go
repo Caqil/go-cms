@@ -15,7 +15,6 @@ import (
 	"go-cms/internal/database/migration"
 	"go-cms/internal/plugins"
 	"go-cms/internal/router"
-	"go-cms/internal/themes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,11 +23,10 @@ func main() {
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal("Failed to load configuration:", err)
+		log.Fatal("Failed to load config:", err)
 	}
-
 	// Initialize database connection
-	db, err := database.Connect(cfg.MongoURL, cfg.DatabaseName)
+	db, err := database.Connect(cfg.MongoURI, cfg.DatabaseName)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
@@ -43,15 +41,15 @@ func main() {
 
 	// Initialize plugin manager
 	pluginManager := plugins.NewManager()
-	if err := pluginManager.LoadPlugins(cfg.PluginPath); err != nil {
+	if err := pluginManager.LoadPlugins(cfg.PluginsDir); err != nil {
 		log.Printf("Warning: Failed to load some plugins: %v", err)
 	}
 
-	// Initialize theme manager
-	themeManager := themes.NewManager(cfg.ThemePath, db)
-	if err := themeManager.LoadThemes(); err != nil {
-		log.Printf("Warning: Failed to load themes: %v", err)
-	}
+	// // Initialize theme manager
+	// themeManager := themes.NewManager(cfg.ThemePath, db)
+	// if err := themeManager.LoadThemes(); err != nil {
+	// 	log.Printf("Warning: Failed to load themes: %v", err)
+	// }
 
 	// Setup Gin router
 	if cfg.Environment == "production" {
@@ -63,7 +61,7 @@ func main() {
 		Config:        cfg,
 		Database:      db,
 		PluginManager: pluginManager,
-		ThemeManager:  themeManager,
+		//ThemeManager:  themeManager,
 	})
 
 	// Start server

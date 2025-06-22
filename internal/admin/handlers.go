@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,6 +19,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Handler struct {
@@ -115,18 +119,43 @@ func (h *Handler) GetPlugins(c *gin.Context) {
 	})
 }
 
-// UploadPlugin handles plugin zip file uploads
+// UploadPlugin handles plugin zip file uploads with improved error handling
 func (h *Handler) UploadPlugin(c *gin.Context) {
+	var tempPath string
+
+	// Cleanup function to ensure temp files are always removed
+	defer func() {
+		if tempPath != "" {
+			if err := os.Remove(tempPath); err != nil && !os.IsNotExist(err) {
+				log.Printf("Warning: Failed to remove temp file %s: %v", tempPath, err)
+			}
+		}
+	}()
+
+	log.Printf("[PLUGIN_UPLOAD] Starting plugin upload process")
+
 	// Get uploaded file
 	file, header, err := c.Request.FormFile("plugin")
 	if err != nil {
+		log.Printf("[PLUGIN_UPLOAD] Error getting form file: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No plugin file provided"})
 		return
 	}
 	defer file.Close()
 
+	log.Printf("[PLUGIN_UPLOAD] Received file: %s, size: %d bytes", header.Filename, header.Size)
+
+	// Validate file size (max 100MB)
+	const maxFileSize = 100 << 20 // 100MB
+	if header.Size > maxFileSize {
+		log.Printf("[PLUGIN_UPLOAD] File too large: %d bytes (max: %d)", header.Size, maxFileSize)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File too large. Maximum size is 100MB"})
+		return
+	}
+
 	// Validate file extension
 	if !strings.HasSuffix(strings.ToLower(header.Filename), ".zip") {
+		log.Printf("[PLUGIN_UPLOAD] Invalid file extension: %s", header.Filename)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Only .zip files are allowed"})
 		return
 	}
@@ -134,44 +163,78 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 	// Create temporary directory for upload
 	tempDir := "./temp"
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
+		log.Printf("[PLUGIN_UPLOAD] Failed to create temp directory: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temp directory"})
 		return
 	}
 
+	// Generate unique temp filename to avoid conflicts
+	timestamp := time.Now().Unix()
+	tempFilename := fmt.Sprintf("%d_%s", timestamp, header.Filename)
+	tempPath = filepath.Join(tempDir, tempFilename)
+
+	log.Printf("[PLUGIN_UPLOAD] Saving to temp path: %s", tempPath)
+
 	// Save uploaded file temporarily
-	tempPath := filepath.Join(tempDir, header.Filename)
 	dst, err := os.Create(tempPath)
 	if err != nil {
+		log.Printf("[PLUGIN_UPLOAD] Failed to create temp file: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
 		return
 	}
-	defer dst.Close()
 
-	if _, err := io.Copy(dst, file); err != nil {
+	// Copy file contents
+	bytesWritten, err := io.Copy(dst, file)
+	dst.Close() // Close immediately after copy
+
+	if err != nil {
+		log.Printf("[PLUGIN_UPLOAD] Failed to copy file contents: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy uploaded file"})
 		return
 	}
+
+	log.Printf("[PLUGIN_UPLOAD] Successfully saved %d bytes to temp file", bytesWritten)
 
 	// Extract plugin name from filename (remove .zip extension)
 	pluginName := strings.TrimSuffix(header.Filename, ".zip")
 
 	// Validate plugin name
 	if !isValidPluginName(pluginName) {
-		os.Remove(tempPath)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plugin name. Use only lowercase letters, numbers, and hyphens"})
+		log.Printf("[PLUGIN_UPLOAD] Invalid plugin name: %s", pluginName)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid plugin name. Use only lowercase letters, numbers, and hyphens",
+		})
+		return
+	}
+
+	log.Printf("[PLUGIN_UPLOAD] Plugin name: %s", pluginName)
+
+	// Check if plugin already exists
+	collection := h.db.Collection("plugins")
+	var existingPlugin models.PluginMetadata
+	err = collection.FindOne(context.Background(), bson.M{"name": pluginName}).Decode(&existingPlugin)
+	if err == nil {
+		log.Printf("[PLUGIN_UPLOAD] Plugin %s already exists, will update", pluginName)
+	} else if err != mongo.ErrNoDocuments {
+		log.Printf("[PLUGIN_UPLOAD] Database error checking existing plugin: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
 	// Validate the zip file
+	log.Printf("[PLUGIN_UPLOAD] Validating plugin zip file")
 	validationResult, err := h.pluginManager.ValidatePlugin(tempPath)
 	if err != nil {
-		os.Remove(tempPath)
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Plugin validation failed: %v", err)})
+		log.Printf("[PLUGIN_UPLOAD] Plugin validation error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("Plugin validation failed: %v", err),
+		})
 		return
 	}
 
 	if !validationResult.IsValid {
-		os.Remove(tempPath)
+		log.Printf("[PLUGIN_UPLOAD] Plugin validation failed. Errors: %v, Warnings: %v",
+			validationResult.Errors, validationResult.Warnings)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":    "Plugin validation failed",
 			"details":  validationResult.Errors,
@@ -180,17 +243,35 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 		return
 	}
 
+	log.Printf("[PLUGIN_UPLOAD] Plugin validation successful")
+
+	// If plugin exists and is active, deactivate it first
+	if existingPlugin.Name != "" && existingPlugin.IsActive {
+		log.Printf("[PLUGIN_UPLOAD] Deactivating existing plugin for update")
+		if err := h.pluginManager.UnloadPlugin(pluginName); err != nil {
+			log.Printf("[PLUGIN_UPLOAD] Warning: Failed to unload existing plugin: %v", err)
+		}
+	}
+
 	// Install the plugin
+	log.Printf("[PLUGIN_UPLOAD] Installing plugin")
 	if err := h.pluginManager.InstallPluginFromZip(tempPath, pluginName); err != nil {
-		os.Remove(tempPath)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Plugin installation failed: %v", err)})
+		log.Printf("[PLUGIN_UPLOAD] Plugin installation failed: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("Plugin installation failed: %v", err),
+		})
 		return
 	}
+
+	log.Printf("[PLUGIN_UPLOAD] Plugin installation successful")
 
 	// Get plugin info for database storage
 	pluginInfo, err := h.pluginManager.GetPluginInfo(pluginName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Plugin installed but failed to get info"})
+		log.Printf("[PLUGIN_UPLOAD] Failed to get plugin info: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Plugin installed but failed to get info",
+		})
 		return
 	}
 
@@ -215,25 +296,53 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 		UpdatedAt:   time.Now(),
 	}
 
-	collection := h.db.Collection("plugins")
-
-	// Upsert the plugin metadata
-	filter := bson.M{"name": pluginInfo.Name}
-	_, err = collection.ReplaceOne(context.Background(), filter, pluginMetadata)
-	if err != nil {
-		_, err = collection.InsertOne(context.Background(), pluginMetadata)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save plugin metadata"})
-			return
-		}
+	// If plugin existed, preserve creation date
+	if existingPlugin.Name != "" {
+		pluginMetadata.CreatedAt = existingPlugin.CreatedAt
 	}
 
+	// Upsert the plugin metadata with proper error handling
+	log.Printf("[PLUGIN_UPLOAD] Saving plugin metadata to database")
+	filter := bson.M{"name": pluginInfo.Name}
+	opts := options.Replace().SetUpsert(true)
+
+	_, err = collection.ReplaceOne(context.Background(), filter, pluginMetadata, opts)
+	if err != nil {
+		log.Printf("[PLUGIN_UPLOAD] Database error saving plugin metadata: %v", err)
+		// Try to clean up the installed plugin since DB save failed
+		if unloadErr := h.pluginManager.UnloadPlugin(pluginName); unloadErr != nil {
+			log.Printf("[PLUGIN_UPLOAD] Failed to cleanup plugin after DB error: %v", unloadErr)
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Plugin installed but failed to save metadata",
+		})
+		return
+	}
+
+	log.Printf("[PLUGIN_UPLOAD] Plugin upload completed successfully: %s v%s",
+		pluginInfo.Name, pluginInfo.Version)
+
+	// Return success response
 	c.JSON(http.StatusOK, gin.H{
 		"message":     "Plugin uploaded and installed successfully",
 		"plugin_name": pluginInfo.Name,
 		"filename":    header.Filename,
 		"version":     pluginInfo.Version,
+		"author":      pluginInfo.Author,
+		"description": pluginInfo.Description,
 	})
+}
+
+// Helper function to validate plugin names
+func isValidPluginName(name string) bool {
+	if name == "" || len(name) > 50 {
+		return false
+	}
+
+	// Only allow lowercase letters, numbers, and hyphens
+	// Must start with a letter
+	matched, _ := regexp.MatchString(`^[a-z][a-z0-9-]*$`, name)
+	return matched
 }
 
 // TogglePlugin activates/deactivates a plugin
@@ -425,20 +534,6 @@ func (h *Handler) HotReloadAll(c *gin.Context) {
 }
 
 // Utility functions
-
-func isValidPluginName(name string) bool {
-	if len(name) == 0 || len(name) > 50 {
-		return false
-	}
-
-	for _, char := range name {
-		if !((char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char == '-') {
-			return false
-		}
-	}
-
-	return true
-}
 
 func convertToModelSettings(pluginSettings []plugins.PluginSetting) []models.PluginSetting {
 	modelSettings := make([]models.PluginSetting, len(pluginSettings))

@@ -4,11 +4,79 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+// ErrorRecoveryMiddleware handles panics and provides better error logging
+func ErrorRecoveryMiddleware() gin.HandlerFunc {
+	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
+		log.Printf("[PANIC] %s %s - Panic recovered: %v", c.Request.Method, c.Request.URL.Path, recovered)
+		log.Printf("[PANIC] Stack trace: %s", debug.Stack())
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":     "Internal server error occurred",
+			"timestamp": time.Now().Unix(),
+		})
+	})
+}
+
+// DetailedRequestLogger provides enhanced request logging
+func DetailedRequestLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		method := c.Request.Method
+
+		// Log request start for upload endpoints
+		if path == "/api/v1/admin/plugins/upload" {
+			log.Printf("[REQUEST_START] %s %s - Content-Length: %s, Content-Type: %s",
+				method, path,
+				c.Request.Header.Get("Content-Length"),
+				c.Request.Header.Get("Content-Type"))
+		}
+
+		c.Next()
+
+		// Calculate request duration
+		duration := time.Since(start)
+		statusCode := c.Writer.Status()
+
+		// Enhanced logging for plugin uploads and errors
+		if path == "/api/v1/admin/plugins/upload" || statusCode >= 400 {
+			log.Printf("[REQUEST_END] %s %s - Status: %d, Duration: %v, Size: %d bytes",
+				method, path, statusCode, duration, c.Writer.Size())
+
+			// Log any errors that were set
+			if len(c.Errors) > 0 {
+				for _, err := range c.Errors {
+					log.Printf("[REQUEST_ERROR] %s %s - Error: %v", method, path, err.Error())
+				}
+			}
+		}
+	}
+}
+
+// FileUploadMiddleware handles file upload specific configurations
+func FileUploadMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Only apply to upload endpoints
+		if c.Request.URL.Path == "/api/v1/admin/plugins/upload" {
+			// Set longer timeout for uploads
+			c.Request.Header.Set("X-Upload-Timeout", "300") // 5 minutes
+
+			// Log upload start
+			contentLength := c.Request.Header.Get("Content-Length")
+			log.Printf("[UPLOAD_START] Content-Length: %s bytes", contentLength)
+		}
+
+		c.Next()
+	}
+}
 
 // RequestLogger creates a request logging middleware
 func RequestLogger() gin.HandlerFunc {
