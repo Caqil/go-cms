@@ -1,0 +1,118 @@
+
+{{define "pages/home.html"}}
+<div class="space-y-12">
+    {{/* Hero Section */}}
+    {{if .Page.Hero}}
+        {{template "components/hero.html" .Page.Hero}}
+    {{else}}
+        <section class="bg-gradient-to-r from-primary to-accent text-white py-20">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    {{.Site.Title}}
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 opacity-90">
+                    {{.Site.Description}}
+                </p>
+                <div class="space-x-4">
+                    <a href="/about" class="btn btn-primary bg-white text-primary hover:bg-gray-100">
+                        Learn More
+                    </a>
+                    <a href="/contact" class="btn btn-secondary border-white text-white hover:bg-white hover:text-primary">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </section>
+    {{end}}
+
+    {{/* Featured Content */}}
+    {{if .FeaturedPosts}}
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-text-primary mb-4">Featured Posts</h2>
+                    <p class="text-text-secondary max-w-2xl mx-auto">
+                        Discover our latest insights, tutorials, and updates
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {{range .FeaturedPosts}}
+                        {{template "components/card.html" .}}
+                    {{end}}
+                </div>
+                
+                <div class="text-center mt-12">
+                    <a href="/blog" class="btn btn-primary">View All Posts</a>
+                </div>
+            </div>
+        </section>
+    {{end}}
+
+    {{/* Services/Features Section */}}
+    {{if .Page.Features}}
+        <section class="py-16 bg-surface">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-text-primary mb-4">Features</h2>
+                    <p class="text-text-secondary max-w-2xl mx-auto">
+                        Everything you need to build amazing websites
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {{range .Page.Features}}
+                        <div class="text-center p-6">
+                            {{if .Icon}}
+                                <div class="w-16 h-16 mx-auto mb-4 bg-primary text-white rounded-lg flex items-center justify-center">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {{.Icon}}
+                                    </svg>
+                                </div>
+                            {{end}}
+                            <h3 class="text-xl font-semibold text-text-primary mb-2">{{.Title}}</h3>
+                            <p class="text-text-secondary">{{.Description}}</p>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </section>
+    {{end}}
+
+    {{/* Recent Posts */}}
+    {{if .RecentPosts}}
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold text-text-primary">Recent Posts</h2>
+                    <a href="/blog" class="text-primary hover:text-accent">View All →</a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {{range .RecentPosts}}
+                        <article class="card">
+                            {{if .Image}}
+                                <img src="{{.Image}}" alt="{{.Title}}" class="w-full h-48 object-cover rounded-lg mb-4">
+                            {{end}}
+                            <div class="flex items-center text-sm text-text-secondary mb-2">
+                                <time datetime="{{.Date}}">{{.Date | formatDate}}</time>
+                                {{if .Category}}
+                                    <span class="mx-2">•</span>
+                                    <span class="text-primary">{{.Category}}</span>
+                                {{end}}
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">
+                                <a href="{{.URL}}" class="text-text-primary hover:text-primary">{{.Title}}</a>
+                            </h3>
+                            <p class="text-text-secondary mb-4">{{.Excerpt}}</p>
+                            <a href="{{.URL}}" class="text-primary hover:text-accent font-medium">
+                                Read More →
+                            </a>
+                        </article>
+                    {{end}}
+                </div>
+            </div>
+        </section>
+    {{end}}
+</div>
+{{end}}

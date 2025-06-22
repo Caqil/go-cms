@@ -1,3 +1,179 @@
 {
-  "name": "default"
+  "name": "default",
+  "version": "1.0.0",
+  "description": "Clean and modern default theme for Go CMS",
+  "author": "Go CMS Team",
+  "website": "https://example.com/themes/default",
+  "screenshot": "assets/images/screenshot.png",
+  "license": "MIT",
+  "tags": ["responsive", "modern", "clean", "business"],
+  "compatibility": {
+    "cms_version": ">=1.0.0",
+    "php_version": ">=8.0"
+  },
+  "features": [
+    "Responsive Design",
+    "Dark Mode Support",
+    "SEO Optimized",
+    "Accessibility Ready",
+    "Custom Colors",
+    "Typography Options",
+    "Widget Support",
+    "Multi-language Ready"
+  ],
+  "templates": {
+    "layouts": {
+      "main": "layouts/main.html",
+      "admin": "layouts/admin.html",
+      "auth": "layouts/auth.html",
+      "error": "layouts/error.html"
+    },
+    "pages": {
+      "home": "pages/home.html",
+      "about": "pages/about.html",
+      "contact": "pages/contact.html",
+      "blog": "pages/blog.html",
+      "post": "pages/post.html",
+      "page": "pages/page.html"
+    },
+    "partials": {
+      "header": "partials/header.html",
+      "footer": "partials/footer.html",
+      "navigation": "partials/navigation.html",
+      "sidebar": "partials/sidebar.html",
+      "breadcrumb": "partials/breadcrumb.html",
+      "pagination": "partials/pagination.html",
+      "search": "partials/search.html"
+    },
+    "components": {
+      "hero": "components/hero.html",
+      "card": "components/card.html",
+      "button": "components/button.html",
+      "form": "components/form.html",
+      "modal": "components/modal.html",
+      "alert": "components/alert.html"
+    }
+  },
+  "assets": {
+    "css": [
+      "assets/css/main.css",
+      "assets/css/components.css",
+      "assets/css/utilities.css"
+    ],
+    "js": [
+      "assets/js/main.js",
+      "assets/js/components.js",
+      "assets/js/theme.js"
+    ],
+    "images": "assets/images/",
+    "fonts": "assets/fonts/"
+  },
+  "customization": {
+    "colors": {
+      "primary": "#2563eb",
+      "secondary": "#64748b",
+      "accent": "#f59e0b",
+      "success": "#10b981",
+      "warning": "#f59e0b",
+      "error": "#ef4444",
+      "background": "#ffffff",
+      "surface": "#f8fafc",
+      "text_primary": "#1f2937",
+      "text_secondary": "#6b7280",
+      "border": "#e5e7eb"
+    },
+    "typography": {
+      "font_family_primary": "Inter, system-ui, sans-serif",
+      "font_family_secondary": "Inter, system-ui, sans-serif",
+      "font_family_heading": "Inter, system-ui, sans-serif",
+      "font_size_base": "16px",
+      "line_height_base": "1.6",
+      "font_weight_normal": "400",
+      "font_weight_medium": "500",
+      "font_weight_semibold": "600",
+      "font_weight_bold": "700"
+    },
+    "layout": {
+      "container_max_width": "1200px",
+      "header_height": "80px",
+      "sidebar_width": "280px",
+      "border_radius": "8px",
+      "spacing_unit": "16px"
+    },
+    "options": {
+      "enable_dark_mode": true,
+      "enable_sticky_header": true,
+      "enable_sidebar": true,
+      "enable_breadcrumbs": true,
+      "enable_search": true,
+      "enable_comments": true,
+      "posts_per_page": 10,
+      "excerpt_length": 150
+    }
+  },
+  "widgets": [
+    {
+      "name": "Recent Posts",
+      "description": "Display recent blog posts",
+      "template": "widgets/recent-posts.html",
+      "settings": {
+        "count": 5,
+        "show_date": true,
+        "show_excerpt": true
+      }
+    },
+    {
+      "name": "Categories",
+      "description": "Display post categories",
+      "template": "widgets/categories.html",
+      "settings": {
+        "show_count": true,
+        "hierarchical": true
+      }
+    },
+    {
+      "name": "Tag Cloud",
+      "description": "Display popular tags",
+      "template": "widgets/tag-cloud.html",
+      "settings": {
+        "min_font_size": 12,
+        "max_font_size": 24,
+        "max_tags": 50
+      }
+    },
+    {
+      "name": "Search",
+      "description": "Search functionality",
+      "template": "widgets/search.html",
+      "settings": {
+        "placeholder": "Search...",
+        "show_suggestions": true
+      }
+    }
+  ],
+  "menus": {
+    "primary": {
+      "name": "Primary Navigation",
+      "location": "header",
+      "description": "Main navigation menu"
+    },
+    "footer": {
+      "name": "Footer Menu",
+      "location": "footer",
+      "description": "Footer navigation menu"
+    },
+    "social": {
+      "name": "Social Links",
+      "location": "header,footer",
+      "description": "Social media links"
+    }
+  },
+  "theme_support": {
+    "post_thumbnails": true,
+    "custom_header": true,
+    "custom_background": true,
+    "custom_logo": true,
+    "html5": ["search-form", "comment-form", "comment-list", "gallery", "caption"],
+    "post_formats": ["aside", "gallery", "link", "image", "quote", "status", "video", "audio", "chat"]
+  }
 }

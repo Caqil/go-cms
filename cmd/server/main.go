@@ -1,3 +1,4 @@
+// cmd/server/main.go
 package main
 
 import (
@@ -11,6 +12,7 @@ import (
 
 	"go-cms/internal/config"
 	"go-cms/internal/database"
+	"go-cms/internal/database/migration"
 	"go-cms/internal/plugins"
 	"go-cms/internal/router"
 	"go-cms/internal/themes"
@@ -31,6 +33,13 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 	defer db.Disconnect(context.Background())
+
+	// Run database migrations
+	log.Println("Checking for database migrations...")
+	migrationManager := migration.NewManager(db)
+	if err := migrationManager.Run(); err != nil {
+		log.Fatal("Failed to run database migrations:", err)
+	}
 
 	// Initialize plugin manager
 	pluginManager := plugins.NewManager()
@@ -72,7 +81,10 @@ func main() {
 		}
 	}()
 
-	log.Printf("Server started on port %s", cfg.Port)
+	log.Printf("🚀 Server started on port %s", cfg.Port)
+	log.Printf("📊 Admin interface available at: http://localhost:%s/admin", cfg.Port)
+	log.Printf("🔑 Default admin credentials: admin@example.com / admin123")
+	log.Printf("⚠️  Remember to change the default admin password!")
 
 	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)

@@ -1,0 +1,160 @@
+
+:root {
+    /* Brand Colors - Customize these for your brand */
+    --brand-primary: #2563eb;
+    --brand-secondary: #64748b;
+    --brand-accent: #f59e0b;
+    
+    /* Extended Color Palette */
+    --color-blue-50: #eff6ff;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    
+    --color-green-50: #f0fdf4;
+    --color-green-500: #22c55e;
+    --color-green-600: #16a34a;
+    
+    --color-red-50: #fef2f2;
+    --color-red-500: #ef4444;
+    --color-red-600: #dc2626;
+    
+    --color-yellow-50: #fffbeb;
+    --color-yellow-500: #f59e0b;
+    --color-yellow-600: #d97706;
+    
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+    
+    /* Layout Customizations */
+    --header-height: 80px;
+    --sidebar-width: 280px;
+    --footer-height: auto;
+    --content-max-width: 1200px;
+    --reading-width: 65ch;
+    
+    /* Spacing Scale */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    
+    /* Border Radius Scale */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-full: 9999px;
+    
+    /* Shadow Scale */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Animation Durations */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 500ms;
+    
+    /* Z-Index Scale */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal: 400;
+    --z-popover: 500;
+    --z-tooltip: 600;
+    
+    /* Breakpoints (for reference in JavaScript) */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+}
+
+/* Dark mode overrides */
+.dark {
+    --color-background: #0f172a;
+    --color-surface: #1e293b;
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-border: #334155;
+    
+    /* Adjust shadows for dark mode */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom properties for specific theme features */
+.theme-default {
+    /* Component-specific customizations */
+    --card-padding: var(--space-lg);
+    --card-radius: var(--radius-lg);
+    --card-shadow: var(--shadow-md);
+    
+    --button-padding-x: var(--space-lg);
+    --button-padding-y: var(--space-md);
+    --button-radius: var(--radius-md);
+    
+    --input-padding-x: var(--space-md);
+    --input-padding-y: var(--space-sm);
+    --input-radius: var(--radius-md);
+    --input-border-width: 1px;
+    
+    --nav-item-padding: var(--space-md);
+    --nav-dropdown-width: 200px;
+    
+    /* Content styling */
+    --prose-headings-color: var(--color-text-primary);
+    --prose-body-color: var(--color-text-primary);
+    --prose-links-color: var(--color-primary);
+    --prose-code-bg: var(--color-surface);
+    --prose-blockquote-border: var(--color-primary);
+}
+
+/* Theme variations can be defined here */
+.theme-minimal {
+    --border-radius: 0;
+    --card-shadow: none;
+    --button-radius: 0;
+}
+
+.theme-rounded {
+    --border-radius: var(--radius-xl);
+    --card-radius: var(--radius-xl);
+    --button-radius: var(--radius-xl);
+}
+
+/* High contrast theme */
+.theme-high-contrast {
+    --color-background: #000000;
+    --color-surface: #ffffff;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #cccccc;
+    --color-border: #ffffff;
+    --color-primary: #ffff00;
+}
+
+.theme-high-contrast.dark {
+    --color-background: #ffffff;
+    --color-surface: #000000;
+    --color-text-primary: #000000;
+    --color-text-secondary: #333333;
+    --color-border: #000000;
+    --color-primary: #0000ff;
+}

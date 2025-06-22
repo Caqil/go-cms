@@ -1,0 +1,26 @@
+
+<!-- partials/breadcrumb.html - Breadcrumb Component -->
+{{if .Breadcrumb}}
+    <nav class="bg-surface border-b border-border" aria-label="Breadcrumb">
+        <div class="container mx-auto px-4 py-3">
+            <ol class="flex items-center space-x-2 text-sm">
+                {{range $index, $item := .Breadcrumb}}
+                    {{if ne $index 0}}
+                        <li>
+                            <svg class="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </li>
+                    {{end}}
+                    <li>
+                        {{if .URL}}
+                            <a href="{{.URL}}" class="text-text-secondary hover:text-primary">{{.Name}}</a>
+                        {{else}}
+                            <span class="text-text-primary font-medium">{{.Name}}</span>
+                        {{end}}
+                    </li>
+                {{end}}
+            </ol>
+        </div>
+    </nav>
+{{end}}

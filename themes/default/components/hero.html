@@ -1,0 +1,38 @@
+
+<!-- components/hero.html - Hero Component -->
+{{define "components/hero.html"}}
+<section class="hero relative overflow-hidden {{.Classes}}">
+    {{if .BackgroundImage}}
+        <div class="absolute inset-0">
+            <img src="{{.BackgroundImage}}" alt="" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+    {{end}}
+    
+    <div class="relative container mx-auto px-4 py-20 text-center">
+        {{if .Subtitle}}
+            <p class="text-lg text-opacity-90 mb-4 {{if .BackgroundImage}}text-white{{else}}text-text-secondary{{end}}">
+                {{.Subtitle}}
+            </p>
+        {{end}}
+        
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 {{if .BackgroundImage}}text-white{{else}}text-text-primary{{end}}">
+            {{.Title}}
+        </h1>
+        
+        {{if .Description}}
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto {{if .BackgroundImage}}text-white text-opacity-90{{else}}text-text-secondary{{end}}">
+                {{.Description}}
+            </p>
+        {{end}}
+        
+        {{if .Buttons}}
+            <div class="space-x-4">
+                {{range .Buttons}}
+                    <a href="{{.URL}}" class="btn {{.Classes}}">{{.Text}}</a>
+                {{end}}
+            </div>
+        {{end}}
+    </div>
+</section>
+{{end}}

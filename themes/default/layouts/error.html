@@ -1,0 +1,119 @@
+
+<!-- layouts/error.html - Error Page Layout -->
+<!DOCTYPE html>
+<html lang="{{.Site.Language | default "en"}}" class="{{if .Theme.DarkMode}}dark{{end}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title>{{.Error.Code}} - {{.Error.Message}} | {{.Site.Title}}</title>
+    <meta name="description" content="{{.Error.Message}}">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <link rel="icon" type="image/x-icon" href="{{.Theme.Favicon | default "/favicon.ico"}}">
+    
+    {{/* CSS Variables */}}
+    <style>
+        :root {
+            --color-primary: {{.Theme.Colors.primary | default "#2563eb"}};
+            --color-background: {{.Theme.Colors.background | default "#ffffff"}};
+            --color-surface: {{.Theme.Colors.surface | default "#f8fafc"}};
+            --color-text-primary: {{.Theme.Colors.text_primary | default "#1f2937"}};
+            --color-text-secondary: {{.Theme.Colors.text_secondary | default "#6b7280"}};
+            --color-border: {{.Theme.Colors.border | default "#e5e7eb"}};
+        }
+        
+        .dark {
+            --color-background: #111827;
+            --color-surface: #1f2937;
+            --color-text-primary: #f9fafb;
+            --color-text-secondary: #d1d5db;
+            --color-border: #374151;
+        }
+    </style>
+    
+    <link rel="stylesheet" href="/themes/default/assets/css/main.css">
+</head>
+<body class="font-sans bg-background text-text-primary min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-md mx-auto">
+            {{/* Error Icon */}}
+            <div class="w-24 h-24 mx-auto mb-8 text-primary">
+                {{if eq .Error.Code 404}}
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.469.901-6.062 2.375L12 21.375l6.062-4.375A7.962 7.962 0 0112 15z"></path>
+                    </svg>
+                {{else if eq .Error.Code 500}}
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                {{else}}
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                {{end}}
+            </div>
+            
+            {{/* Error Code */}}
+            <h1 class="text-6xl font-bold text-primary mb-4">{{.Error.Code}}</h1>
+            
+            {{/* Error Message */}}
+            <h2 class="text-2xl font-semibold text-text-primary mb-4">{{.Error.Message}}</h2>
+            
+            {{/* Error Description */}}
+            <p class="text-text-secondary mb-8">
+                {{if eq .Error.Code 404}}
+                    The page you're looking for doesn't exist or has been moved.
+                {{else if eq .Error.Code 500}}
+                    Something went wrong on our end. We're working to fix it.
+                {{else if eq .Error.Code 403}}
+                    You don't have permission to access this resource.
+                {{else}}
+                    An unexpected error occurred. Please try again later.
+                {{end}}
+            </p>
+            
+            {{/* Action Buttons */}}
+            <div class="space-y-4">
+                <a href="/" class="btn btn-primary inline-block">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    Go Home
+                </a>
+                
+                <button onclick="history.back()" class="btn btn-secondary ml-4">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Go Back
+                </button>
+            </div>
+            
+            {{/* Search */}}
+            {{if .Theme.Options.enable_search}}
+                <div class="mt-8">
+                    <p class="text-text-secondary mb-4">Or search for what you need:</p>
+                    <form action="/search" method="get" class="flex max-w-sm mx-auto">
+                        <input type="search" name="q" placeholder="Search..." 
+                               class="flex-1 px-4 py-2 border border-border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-r-lg hover:bg-accent transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            {{end}}
+        </div>
+        
+        {{/* Site Footer */}}
+        <div class="mt-16 text-sm text-text-secondary">
+            <p>&copy; {{date "2006"}} {{.Site.Title}}. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <script src="/themes/default/assets/js/main.js"></script>
+</body>
+</html>

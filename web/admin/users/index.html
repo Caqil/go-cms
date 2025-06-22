@@ -1,1 +1,869 @@
-<!-- Admin dashboard HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Go CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/admin" class="text-xl font-bold text-gray-900">Go CMS</a>
+                    <nav class="ml-8 flex space-x-4">
+                        <a href="/admin/dashboard" class="text-gray-500 hover:text-gray-700">Dashboard</a>
+                        <a href="/admin/themes" class="text-gray-500 hover:text-gray-700">Themes</a>
+                        <a href="/admin/users" class="text-blue-600 font-medium">Users</a>
+                        <a href="/admin/settings" class="text-gray-500 hover:text-gray-700">Settings</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center text-sm bg-white rounded-full focus:outline-none" id="user-menu">
+                            <img class="h-8 w-8 rounded-full" src="/api/user/avatar" alt="User">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-8">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">Users</h2>
+                <p class="mt-1 text-sm text-gray-500">Manage user accounts and permissions</p>
+            </div>
+            <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+                <a href="/admin/users/roles" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-user-shield mr-2"></i>Manage Roles
+                </a>
+                <button onclick="exportUsers()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+                <button onclick="openCreateModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Add User
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="searchUsers" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500" placeholder="Search users...">
+                        </div>
+                    </div>
+                    <div class="sm:w-48">
+                        <select id="roleFilter" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Roles</option>
+                            <option value="super_admin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="editor">Editor</option>
+                            <option value="author">Author</option>
+                            <option value="user">User</option>
+                        </select>
+                    </div>
+                    <div class="sm:w-48">
+                        <select id="statusFilter" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <button onclick="applyFilters()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-filter mr-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white shadow overflow-hidden rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Users List</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">
+                            <span id="userCount">Loading...</span> users
+                        </span>
+                        <button onclick="refreshUsers()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200" id="usersTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('name')">
+                                User
+                                <i class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('role')">
+                                Role
+                                <i class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
+                                Status
+                                <i class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('created_at')">
+                                Created
+                                <i class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('last_login')">
+                                Last Login
+                                <i class="fas fa-sort ml-1"></i>
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Users will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </button>
+                    <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </button>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing <span id="showingStart">1</span> to <span id="showingEnd">10</span> of <span id="totalUsers">0</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="pagination">
+                            <!-- Pagination buttons will be generated here -->
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div id="bulkActions" class="hidden mt-4 bg-white shadow rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">
+                        <span id="selectedCount">0</span> users selected
+                    </span>
+                    <button onclick="clearSelection()" class="text-sm text-blue-600 hover:text-blue-800">Clear selection</button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <select id="bulkActionSelect" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Choose action...</option>
+                        <option value="activate">Activate</option>
+                        <option value="deactivate">Deactivate</option>
+                        <option value="suspend">Suspend</option>
+                        <option value="delete">Delete</option>
+                        <option value="change_role">Change Role</option>
+                    </select>
+                    <button onclick="executeBulkAction()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modalTitle">Add New User</h3>
+                    <form id="userForm" class="space-y-4">
+                        <input type="hidden" id="userId">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                                <input type="text" id="firstName" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                                <input type="text" id="lastName" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                            <input type="text" id="username" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <p class="mt-1 text-sm text-gray-500" id="passwordHelp">Leave blank to keep current password</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                                <select id="role" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="user">User</option>
+                                    <option value="author">Author</option>
+                                    <option value="editor">Editor</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="super_admin">Super Admin</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                                <select id="status" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+                            <textarea id="bio" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="emailVerified" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Email verified</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="twoFactorEnabled" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Two-factor authentication enabled</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="sendWelcomeEmail" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Send welcome email</span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                    <button type="button" onclick="saveUser()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:col-start-2 sm:text-sm">
+                        <span id="saveButtonText">Create User</span>
+                    </button>
+                    <button type="button" onclick="closeUserModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:col-start-1 sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+                <div id="userDetailsContent">
+                    <!-- User details will be populated here -->
+                </div>
+                <div class="mt-5 sm:mt-6">
+                    <button type="button" onclick="closeUserDetailsModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let totalUsers = 0;
+        let selectedUsers = new Set();
+        let sortColumn = 'created_at';
+        let sortDirection = 'desc';
+
+        // Load users on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchUsers').addEventListener('input', debounce(applyFilters, 300));
+            
+            // Select all checkbox
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.user-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                    if (this.checked) {
+                        selectedUsers.add(checkbox.value);
+                    } else {
+                        selectedUsers.delete(checkbox.value);
+                    }
+                });
+                updateBulkActions();
+            });
+        }
+
+        async function loadUsers() {
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: itemsPerPage,
+                    sort: sortColumn,
+                    direction: sortDirection,
+                    search: document.getElementById('searchUsers').value,
+                    role: document.getElementById('roleFilter').value,
+                    status: document.getElementById('statusFilter').value
+                });
+
+                const response = await fetch(`/api/v1/admin/users?${params}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    users = data.users;
+                    totalUsers = data.total;
+                    renderUsers();
+                    renderPagination();
+                    updateUserCount();
+                } else {
+                    throw new Error('Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">Failed to load users</td></tr>';
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="user-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value="${user.id}">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-full" src="${user.avatar || '/api/user/avatar/default'}" alt="${user.name}">
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${user.first_name} ${user.last_name}</div>
+                                <div class="text-sm text-gray-500">@${user.username}</div>
+                                <div class="text-sm text-gray-500">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeClass(user.role)}">
+                            ${formatRole(user.role)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(user.status)}">
+                            ${formatStatus(user.status)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${formatDate(user.created_at)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${user.last_login_at ? formatDate(user.last_login_at) : 'Never'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button onclick="viewUser('${user.id}')" class="text-blue-600 hover:text-blue-900" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="editUser('${user.id}')" class="text-indigo-600 hover:text-indigo-900" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="toggleUserStatus('${user.id}', '${user.status}')" class="text-${user.status === 'active' ? 'yellow' : 'green'}-600 hover:text-${user.status === 'active' ? 'yellow' : 'green'}-900" title="${user.status === 'active' ? 'Deactivate' : 'Activate'}">
+                                <i class="fas fa-${user.status === 'active' ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button onclick="deleteUser('${user.id}')" class="text-red-600 hover:text-red-900" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add event listeners to checkboxes
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedUsers.add(this.value);
+                    } else {
+                        selectedUsers.delete(this.value);
+                    }
+                    updateBulkActions();
+                });
+            });
+        }
+
+        function updateBulkActions() {
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+            const selectAllCheckbox = document.getElementById('selectAll');
+
+            selectedCount.textContent = selectedUsers.size;
+
+            if (selectedUsers.size > 0) {
+                bulkActions.classList.remove('hidden');
+            } else {
+                bulkActions.classList.add('hidden');
+            }
+
+            // Update select all checkbox state
+            const totalCheckboxes = document.querySelectorAll('.user-checkbox').length;
+            if (selectedUsers.size === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (selectedUsers.size === totalCheckboxes) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+
+        function getRoleBadgeClass(role) {
+            const classes = {
+                'super_admin': 'bg-purple-100 text-purple-800',
+                'admin': 'bg-red-100 text-red-800',
+                'editor': 'bg-blue-100 text-blue-800',
+                'author': 'bg-green-100 text-green-800',
+                'user': 'bg-gray-100 text-gray-800'
+            };
+            return classes[role] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusBadgeClass(status) {
+            const classes = {
+                'active': 'bg-green-100 text-green-800',
+                'inactive': 'bg-gray-100 text-gray-800',
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'suspended': 'bg-red-100 text-red-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function formatRole(role) {
+            return role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatStatus(status) {
+            return status.charAt(0).toUpperCase() + status.slice(1);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function updateUserCount() {
+            document.getElementById('userCount').textContent = totalUsers;
+            document.getElementById('totalUsers').textContent = totalUsers;
+            
+            const start = (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(currentPage * itemsPerPage, totalUsers);
+            
+            document.getElementById('showingStart').textContent = start;
+            document.getElementById('showingEnd').textContent = end;
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(totalUsers / itemsPerPage);
+            
+            pagination.innerHTML = '';
+
+            // Previous button
+            const prevButton = document.createElement('button');
+            prevButton.className = `relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}`;
+            prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => currentPage > 1 && changePage(currentPage - 1);
+            pagination.appendChild(prevButton);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const pageButton = document.createElement('button');
+                    pageButton.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        i === currentPage 
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' 
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    }`;
+                    pageButton.textContent = i;
+                    pageButton.onclick = () => changePage(i);
+                    pagination.appendChild(pageButton);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+
+            // Next button
+            const nextButton = document.createElement('button');
+            nextButton.className = `relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}`;
+            nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.onclick = () => currentPage < totalPages && changePage(currentPage + 1);
+            pagination.appendChild(nextButton);
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadUsers();
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            loadUsers();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            selectedUsers.clear();
+            loadUsers();
+        }
+
+        function refreshUsers() {
+            selectedUsers.clear();
+            loadUsers();
+        }
+
+        function clearSelection() {
+            selectedUsers.clear();
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('selectAll').checked = false;
+            updateBulkActions();
+        }
+
+        async function executeBulkAction() {
+            const action = document.getElementById('bulkActionSelect').value;
+            if (!action || selectedUsers.size === 0) {
+                alert('Please select an action and users');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to ${action} ${selectedUsers.size} user(s)?`)) {
+                try {
+                    const response = await fetch('/api/v1/admin/users/bulk', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                        },
+                        body: JSON.stringify({
+                            action: action,
+                            user_ids: Array.from(selectedUsers)
+                        })
+                    });
+
+                    if (response.ok) {
+                        clearSelection();
+                        loadUsers();
+                        alert('Bulk action completed successfully');
+                    } else {
+                        alert('Failed to execute bulk action');
+                    }
+                } catch (error) {
+                    alert('Error executing bulk action: ' + error.message);
+                }
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Add New User';
+            document.getElementById('saveButtonText').textContent = 'Create User';
+            document.getElementById('passwordHelp').textContent = 'Minimum 8 characters';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden');
+        }
+
+        async function editUser(userId) {
+            try {
+                const response = await fetch(`/api/v1/admin/users/${userId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    
+                    document.getElementById('modalTitle').textContent = 'Edit User';
+                    document.getElementById('saveButtonText').textContent = 'Update User';
+                    document.getElementById('passwordHelp').textContent = 'Leave blank to keep current password';
+                    
+                    // Populate form
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('firstName').value = user.first_name;
+                    document.getElementById('lastName').value = user.last_name;
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('role').value = user.role;
+                    document.getElementById('status').value = user.status;
+                    document.getElementById('bio').value = user.bio || '';
+                    document.getElementById('emailVerified').checked = user.email_verified;
+                    document.getElementById('twoFactorEnabled').checked = user.two_factor_enabled;
+                    
+                    document.getElementById('userModal').classList.remove('hidden');
+                } else {
+                    alert('Failed to load user details');
+                }
+            } catch (error) {
+                alert('Error loading user: ' + error.message);
+            }
+        }
+
+        async function saveUser() {
+            const userId = document.getElementById('userId').value;
+            const isEdit = !!userId;
+            
+            const userData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                role: document.getElementById('role').value,
+                status: document.getElementById('status').value,
+                bio: document.getElementById('bio').value,
+                email_verified: document.getElementById('emailVerified').checked,
+                two_factor_enabled: document.getElementById('twoFactorEnabled').checked,
+                send_welcome_email: document.getElementById('sendWelcomeEmail').checked
+            };
+
+            const password = document.getElementById('password').value;
+            if (password || !isEdit) {
+                userData.password = password;
+            }
+
+            try {
+                const url = isEdit ? `/api/v1/admin/users/${userId}` : '/api/v1/admin/users';
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                if (response.ok) {
+                    closeUserModal();
+                    loadUsers();
+                    alert(`User ${isEdit ? 'updated' : 'created'} successfully`);
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to ${isEdit ? 'update' : 'create'} user: ` + error.message);
+                }
+            } catch (error) {
+                alert(`Error ${isEdit ? 'updating' : 'creating'} user: ` + error.message);
+            }
+        }
+
+        async function viewUser(userId) {
+            try {
+                const response = await fetch(`/api/v1/admin/users/${userId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    showUserDetails(user);
+                } else {
+                    alert('Failed to load user details');
+                }
+            } catch (error) {
+                alert('Error loading user: ' + error.message);
+            }
+        }
+
+        function showUserDetails(user) {
+            const content = document.getElementById('userDetailsContent');
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="text-center">
+                        <img class="mx-auto h-20 w-20 rounded-full" src="${user.avatar || '/api/user/avatar/default'}" alt="${user.first_name} ${user.last_name}">
+                        <h3 class="mt-2 text-xl font-medium text-gray-900">${user.first_name} ${user.last_name}</h3>
+                        <p class="text-sm text-gray-500">@${user.username}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <p class="mt-1 text-sm text-gray-900">${user.email}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Role</label>
+                            <p class="mt-1 text-sm text-gray-900">${formatRole(user.role)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <p class="mt-1 text-sm text-gray-900">${formatStatus(user.status)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Created</label>
+                            <p class="mt-1 text-sm text-gray-900">${formatDate(user.created_at)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Last Login</label>
+                            <p class="mt-1 text-sm text-gray-900">${user.last_login_at ? formatDate(user.last_login_at) : 'Never'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email Verified</label>
+                            <p class="mt-1 text-sm text-gray-900">${user.email_verified ? 'Yes' : 'No'}</p>
+                        </div>
+                    </div>
+                    
+                    ${user.bio ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Bio</label>
+                            <p class="mt-1 text-sm text-gray-900">${user.bio}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            document.getElementById('userDetailsModal').classList.remove('hidden');
+        }
+
+        function closeUserDetailsModal() {
+            document.getElementById('userDetailsModal').classList.add('hidden');
+        }
+
+        async function toggleUserStatus(userId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            
+            try {
+                const response = await fetch(`/api/v1/admin/users/${userId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (response.ok) {
+                    loadUsers();
+                } else {
+                    alert('Failed to update user status');
+                }
+            } catch (error) {
+                alert('Error updating user status: ' + error.message);
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`/api/v1/admin/users/${userId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                        }
+                    });
+
+                    if (response.ok) {
+                        loadUsers();
+                        alert('User deleted successfully');
+                    } else {
+                        alert('Failed to delete user');
+                    }
+                } catch (error) {
+                    alert('Error deleting user: ' + error.message);
+                }
+            }
+        }
+
+        function exportUsers() {
+            window.location.href = '/api/v1/admin/users/export?' + new URLSearchParams({
+                format: 'csv',
+                role: document.getElementById('roleFilter').value,
+                status: document.getElementById('statusFilter').value,
+                search: document.getElementById('searchUsers').value
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+
+<!-- widgets/categories.html - Categories Widget -->
+{{define "widgets/categories.html"}}
+<div class="widget categories-widget">
+    <h3 class="widget-title text-lg font-semibold text-text-primary mb-4">Categories</h3>
+    {{if .Categories}}
+        <ul class="space-y-2">
+            {{range .Categories}}
+                <li class="flex items-center justify-between">
+                    <a href="/blog/category/{{.Slug}}" class="text-text-secondary hover:text-primary flex-1">
+                        {{.Name}}
+                    </a>
+                    {{if .Settings.show_count}}
+                        <span class="text-xs text-text-secondary bg-surface px-2 py-1 rounded">
+                            {{.Count}}
+                        </span>
+                    {{end}}
+                </li>
+            {{end}}
+        </ul>
+    {{else}}
+        <p class="text-text-secondary text-sm">No categories found.</p>
+    {{end}}
+</div>
+{{end}}
+
+---

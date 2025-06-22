@@ -1,0 +1,77 @@
+
+<!-- partials/footer.html - Footer Component -->
+<footer class="bg-surface border-t border-border mt-auto">
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {{/* About Section */}}
+            <div class="lg:col-span-2">
+                <div class="flex items-center space-x-3 mb-4">
+                    {{if .Site.Logo}}
+                        <img src="{{.Site.Logo}}" alt="{{.Site.Title}}" class="h-8 w-auto">
+                    {{end}}
+                    <span class="text-lg font-bold text-text-primary">{{.Site.Title}}</span>
+                </div>
+                <p class="text-text-secondary mb-4">{{.Site.Description}}</p>
+                
+                {{/* Social Links */}}
+                {{if .Menu.Social}}
+                    <div class="flex space-x-4">
+                        {{range .Menu.Social}}
+                            <a href="{{.URL}}" class="text-text-secondary hover:text-primary" target="_blank" rel="noopener noreferrer">
+                                <span class="sr-only">{{.Name}}</span>
+                                {{/* Social icons would be rendered here based on platform */}}
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    {{/* Icon path based on social platform */}}
+                                </svg>
+                            </a>
+                        {{end}}
+                    </div>
+                {{end}}
+            </div>
+            
+            {{/* Quick Links */}}
+            <div>
+                <h3 class="text-text-primary font-semibold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    {{range .Menu.Footer}}
+                        <li>
+                            <a href="{{.URL}}" class="text-text-secondary hover:text-primary">{{.Name}}</a>
+                        </li>
+                    {{end}}
+                </ul>
+            </div>
+            
+            {{/* Contact Info */}}
+            <div>
+                <h3 class="text-text-primary font-semibold mb-4">Contact</h3>
+                <div class="space-y-2 text-text-secondary">
+                    {{if .Site.Email}}
+                        <p>
+                            <a href="mailto:{{.Site.Email}}" class="hover:text-primary">{{.Site.Email}}</a>
+                        </p>
+                    {{end}}
+                    {{if .Site.Phone}}
+                        <p>
+                            <a href="tel:{{.Site.Phone}}" class="hover:text-primary">{{.Site.Phone}}</a>
+                        </p>
+                    {{end}}
+                    {{if .Site.Address}}
+                        <p>{{.Site.Address}}</p>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        
+        {{/* Footer Bottom */}}
+        <div class="border-t border-border pt-8 mt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">
+                    © {{date "2006"}} {{.Site.Title}}. All rights reserved.
+                </p>
+                <p class="text-text-secondary text-sm mt-2 md:mt-0">
+                    Powered by <a href="#" class="text-primary hover:underline">Go CMS</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,37 @@
+
+<!-- widgets/recent-posts.html - Recent Posts Widget -->
+{{define "widgets/recent-posts.html"}}
+<div class="widget recent-posts-widget">
+    <h3 class="widget-title text-lg font-semibold text-text-primary mb-4">Recent Posts</h3>
+    {{if .RecentPosts}}
+        <div class="space-y-4">
+            {{range .RecentPosts}}
+                <article class="flex space-x-3">
+                    {{if .Image}}
+                        <a href="{{.URL}}" class="flex-shrink-0">
+                            <img src="{{.Image}}" alt="{{.Title}}" class="w-16 h-16 object-cover rounded">
+                        </a>
+                    {{end}}
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-medium text-text-primary leading-tight mb-1">
+                            <a href="{{.URL}}" class="hover:text-primary">{{.Title}}</a>
+                        </h4>
+                        {{if .Settings.show_date}}
+                            <time class="text-xs text-text-secondary" datetime="{{.Date}}">
+                                {{.Date | formatDate}}
+                            </time>
+                        {{end}}
+                        {{if and .Settings.show_excerpt .Excerpt}}
+                            <p class="text-xs text-text-secondary mt-1">
+                                {{.Excerpt | truncate 80}}
+                            </p>
+                        {{end}}
+                    </div>
+                </article>
+            {{end}}
+        </div>
+    {{else}}
+        <p class="text-text-secondary text-sm">No recent posts found.</p>
+    {{end}}
+</div>
+{{end}}

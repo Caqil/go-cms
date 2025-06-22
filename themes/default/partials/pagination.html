@@ -1,0 +1,63 @@
+
+<!-- partials/pagination.html - Pagination Component -->
+{{if .Pagination}}
+    <nav class="flex items-center justify-between mt-8" aria-label="Pagination">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {{if .Pagination.HasPrev}}
+                <a href="{{.Pagination.PrevURL}}" class="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-background">
+                    Previous
+                </a>
+            {{end}}
+            {{if .Pagination.HasNext}}
+                <a href="{{.Pagination.NextURL}}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-background">
+                    Next
+                </a>
+            {{end}}
+        </div>
+        
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-text-secondary">
+                    Showing <span class="font-medium">{{.Pagination.Start}}</span> to <span class="font-medium">{{.Pagination.End}}</span> of <span class="font-medium">{{.Pagination.Total}}</span> results
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {{if .Pagination.HasPrev}}
+                        <a href="{{.Pagination.PrevURL}}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-surface text-sm font-medium text-text-secondary hover:bg-background">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </a>
+                    {{end}}
+                    
+                    {{range .Pagination.Pages}}
+                        {{if .IsCurrent}}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-primary bg-primary text-sm font-medium text-white">
+                                {{.Number}}
+                            </span>
+                        {{else if .IsEllipsis}}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-border bg-surface text-sm font-medium text-text-secondary">
+                                ...
+                            </span>
+                        {{else}}
+                            <a href="{{.URL}}" class="relative inline-flex items-center px-4 py-2 border border-border bg-surface text-sm font-medium text-text-secondary hover:bg-background">
+                                {{.Number}}
+                            </a>
+                        {{end}}
+                    {{end}}
+                    
+                    {{if .Pagination.HasNext}}
+                        <a href="{{.Pagination.NextURL}}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-surface text-sm font-medium text-text-secondary hover:bg-background">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    {{end}}
+                </nav>
+            </div>
+        </div>
+    </nav>
+{{end}}

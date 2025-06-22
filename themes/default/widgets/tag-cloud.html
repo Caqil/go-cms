@@ -1,0 +1,21 @@
+
+<!-- widgets/tag-cloud.html - Tag Cloud Widget -->
+{{define "widgets/tag-cloud.html"}}
+<div class="widget tag-cloud-widget">
+    <h3 class="widget-title text-lg font-semibold text-text-primary mb-4">Tags</h3>
+    {{if .Tags}}
+        <div class="flex flex-wrap gap-2">
+            {{range .Tags}}
+                <a href="/blog/tag/{{.Slug}}" 
+                   class="px-2 py-1 text-xs bg-surface hover:bg-primary hover:text-white transition-colors rounded"
+                   data-font-size="{{.FontSize}}">
+                    {{.Name}}
+                </a>
+            {{end}}
+        </div>
+    {{else}}
+        <p class="text-text-secondary text-sm">No tags found.</p>
+    {{end}}
+</div>
+{{end}}
+

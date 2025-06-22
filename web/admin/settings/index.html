@@ -1,1 +1,797 @@
-<!-- Admin dashboard HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Go CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/admin" class="text-xl font-bold text-gray-900">Go CMS</a>
+                    <nav class="ml-8 flex space-x-4">
+                        <a href="/admin/dashboard" class="text-gray-500 hover:text-gray-700">Dashboard</a>
+                        <a href="/admin/themes" class="text-gray-500 hover:text-gray-700">Themes</a>
+                        <a href="/admin/users" class="text-gray-500 hover:text-gray-700">Users</a>
+                        <a href="/admin/settings" class="text-blue-600 font-medium">Settings</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center text-sm bg-white rounded-full focus:outline-none" id="user-menu">
+                            <img class="h-8 w-8 rounded-full" src="/api/user/avatar" alt="User">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-8">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">Settings</h2>
+                <p class="mt-1 text-sm text-gray-500">Manage your website configuration and preferences</p>
+            </div>
+            <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+                <button onclick="exportSettings()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+                <button onclick="importSettings()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-upload mr-2"></i>Import
+                </button>
+                <button onclick="saveAllSettings()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Settings Navigation -->
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Settings Categories</h3>
+                    </div>
+                    <nav class="settings-nav">
+                        <button class="settings-nav-item active w-full text-left px-6 py-3 text-sm font-medium text-blue-600 bg-blue-50 border-r-2 border-blue-600" data-section="general">
+                            <i class="fas fa-cog mr-2"></i>General
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="appearance">
+                            <i class="fas fa-palette mr-2"></i>Appearance
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="email">
+                            <i class="fas fa-envelope mr-2"></i>Email
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="security">
+                            <i class="fas fa-shield-alt mr-2"></i>Security
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="seo">
+                            <i class="fas fa-search mr-2"></i>SEO
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="performance">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Performance
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="integrations">
+                            <i class="fas fa-plug mr-2"></i>Integrations
+                        </button>
+                        <button class="settings-nav-item w-full text-left px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50" data-section="advanced">
+                            <i class="fas fa-tools mr-2"></i>Advanced
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="lg:col-span-3">
+                <!-- General Settings -->
+                <div id="general-section" class="settings-section bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">General Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Basic site configuration and information</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="siteTitle" class="block text-sm font-medium text-gray-700">Site Title</label>
+                                <input type="text" id="siteTitle" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="Go CMS">
+                            </div>
+                            <div>
+                                <label for="siteTagline" class="block text-sm font-medium text-gray-700">Site Tagline</label>
+                                <input type="text" id="siteTagline" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="Modern Content Management">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="siteDescription" class="block text-sm font-medium text-gray-700">Site Description</label>
+                            <textarea id="siteDescription" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">A powerful and flexible content management system built with Go.</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="siteUrl" class="block text-sm font-medium text-gray-700">Site URL</label>
+                                <input type="url" id="siteUrl" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="https://example.com">
+                            </div>
+                            <div>
+                                <label for="adminEmail" class="block text-sm font-medium text-gray-700">Admin Email</label>
+                                <input type="email" id="adminEmail" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="admin@example.com">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
+                                <select id="timezone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="UTC">UTC</option>
+                                    <option value="America/New_York">Eastern Time</option>
+                                    <option value="America/Chicago">Central Time</option>
+                                    <option value="America/Denver">Mountain Time</option>
+                                    <option value="America/Los_Angeles">Pacific Time</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="language" class="block text-sm font-medium text-gray-700">Default Language</label>
+                                <select id="language" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="maintenanceMode" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Enable maintenance mode</span>
+                            </label>
+                            <p class="mt-1 text-sm text-gray-500">When enabled, only administrators can access the site</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance Settings -->
+                <div id="appearance-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Appearance Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Customize the look and feel of your website</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div>
+                            <label for="activeTheme" class="block text-sm font-medium text-gray-700">Active Theme</label>
+                            <select id="activeTheme" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="default">Default Theme</option>
+                                <option value="modern">Modern Theme</option>
+                                <option value="minimal">Minimal Theme</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="primaryColor" class="block text-sm font-medium text-gray-700">Primary Color</label>
+                                <div class="mt-1 flex">
+                                    <input type="color" id="primaryColor" value="#2563eb" class="h-10 w-16 border border-gray-300 rounded-l-md">
+                                    <input type="text" value="#2563eb" class="flex-1 border border-gray-300 rounded-r-md shadow-sm focus:ring-blue-500 focus:border-blue-500 pl-3">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="secondaryColor" class="block text-sm font-medium text-gray-700">Secondary Color</label>
+                                <div class="mt-1 flex">
+                                    <input type="color" id="secondaryColor" value="#64748b" class="h-10 w-16 border border-gray-300 rounded-l-md">
+                                    <input type="text" value="#64748b" class="flex-1 border border-gray-300 rounded-r-md shadow-sm focus:ring-blue-500 focus:border-blue-500 pl-3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="logoUpload" class="block text-sm font-medium text-gray-700">Site Logo</label>
+                            <div class="mt-1 flex items-center space-x-4">
+                                <div class="w-20 h-20 border-2 border-gray-300 border-dashed rounded-lg flex items-center justify-center">
+                                    <img id="logoPreview" src="/api/site/logo" alt="Logo" class="max-w-full max-h-full hidden">
+                                    <i class="fas fa-image text-gray-400 text-2xl" id="logoPlaceholder"></i>
+                                </div>
+                                <div>
+                                    <button type="button" onclick="document.getElementById('logoUpload').click()" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                        <i class="fas fa-upload mr-2"></i>Upload Logo
+                                    </button>
+                                    <input type="file" id="logoUpload" accept="image/*" class="hidden">
+                                    <p class="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="customCSS" class="block text-sm font-medium text-gray-700">Custom CSS</label>
+                            <textarea id="customCSS" rows="6" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder="/* Add your custom CSS here */"></textarea>
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="darkModeEnabled" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Enable dark mode</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="responsiveImages" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable responsive images</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Settings -->
+                <div id="email-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Email Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Configure email delivery and notifications</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div>
+                            <label for="emailDriver" class="block text-sm font-medium text-gray-700">Email Driver</label>
+                            <select id="emailDriver" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="smtp">SMTP</option>
+                                <option value="sendmail">Sendmail</option>
+                                <option value="mailgun">Mailgun</option>
+                                <option value="sendgrid">SendGrid</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="smtpHost" class="block text-sm font-medium text-gray-700">SMTP Host</label>
+                                <input type="text" id="smtpHost" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="smtp.gmail.com">
+                            </div>
+                            <div>
+                                <label for="smtpPort" class="block text-sm font-medium text-gray-700">SMTP Port</label>
+                                <input type="number" id="smtpPort" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="587">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="smtpUsername" class="block text-sm font-medium text-gray-700">SMTP Username</label>
+                                <input type="text" id="smtpUsername" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="smtpPassword" class="block text-sm font-medium text-gray-700">SMTP Password</label>
+                                <input type="password" id="smtpPassword" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="fromEmail" class="block text-sm font-medium text-gray-700">From Email</label>
+                                <input type="email" id="fromEmail" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="noreply@example.com">
+                            </div>
+                            <div>
+                                <label for="fromName" class="block text-sm font-medium text-gray-700">From Name</label>
+                                <input type="text" id="fromName" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="Go CMS">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Test Email Configuration</p>
+                                <p class="text-sm text-gray-500">Send a test email to verify your settings</p>
+                            </div>
+                            <button onclick="sendTestEmail()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div id="security-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Configure security and authentication options</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="twoFactorAuth" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Enable two-factor authentication</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="bruteForceProtection" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable brute force protection</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="sessionTimeout" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable session timeout</span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="sessionDuration" class="block text-sm font-medium text-gray-700">Session Duration (hours)</label>
+                                <input type="number" id="sessionDuration" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="24">
+                            </div>
+                            <div>
+                                <label for="maxLoginAttempts" class="block text-sm font-medium text-gray-700">Max Login Attempts</label>
+                                <input type="number" id="maxLoginAttempts" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="5">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="passwordPolicy" class="block text-sm font-medium text-gray-700">Password Policy</label>
+                            <div class="mt-2 space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="requireUppercase" class="rounded border-gray-300 text-blue-600 shadow-sm" checked>
+                                    <span class="ml-2 text-sm text-gray-700">Require uppercase letters</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="requireNumbers" class="rounded border-gray-300 text-blue-600 shadow-sm" checked>
+                                    <span class="ml-2 text-sm text-gray-700">Require numbers</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="requireSpecialChars" class="rounded border-gray-300 text-blue-600 shadow-sm">
+                                    <span class="ml-2 text-sm text-gray-700">Require special characters</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="minPasswordLength" class="block text-sm font-medium text-gray-700">Minimum Password Length</label>
+                            <input type="number" id="minPasswordLength" class="mt-1 block w-32 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="8" min="6" max="50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEO Settings -->
+                <div id="seo-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">SEO Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Optimize your website for search engines</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div>
+                            <label for="metaDescription" class="block text-sm font-medium text-gray-700">Default Meta Description</label>
+                            <textarea id="metaDescription" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="A brief description of your website..."></textarea>
+                            <p class="mt-1 text-sm text-gray-500">Recommended length: 150-160 characters</p>
+                        </div>
+
+                        <div>
+                            <label for="metaKeywords" class="block text-sm font-medium text-gray-700">Default Meta Keywords</label>
+                            <input type="text" id="metaKeywords" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="keyword1, keyword2, keyword3">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="googleAnalytics" class="block text-sm font-medium text-gray-700">Google Analytics ID</label>
+                                <input type="text" id="googleAnalytics" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="GA-XXXXXXXXX-X">
+                            </div>
+                            <div>
+                                <label for="googleSearchConsole" class="block text-sm font-medium text-gray-700">Search Console Verification</label>
+                                <input type="text" id="googleSearchConsole" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="verification_code">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="robotsTxt" class="block text-sm font-medium text-gray-700">Robots.txt Content</label>
+                            <textarea id="robotsTxt" rows="6" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm">User-agent: *
+Allow: /
+
+Sitemap: https://example.com/sitemap.xml</textarea>
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="generateSitemap" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Automatically generate sitemap</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="cleanUrls" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable clean URLs</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Settings -->
+                <div id="performance-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Performance Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Optimize your website's speed and performance</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="enableCaching" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable page caching</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="enableCompression" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable GZIP compression</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="enableMinification" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Minify CSS and JavaScript</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="enableLazyLoading" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                <span class="ml-2 text-sm text-gray-700">Enable lazy loading for images</span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="cacheExpiry" class="block text-sm font-medium text-gray-700">Cache Expiry (hours)</label>
+                                <input type="number" id="cacheExpiry" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="24">
+                            </div>
+                            <div>
+                                <label for="maxFileSize" class="block text-sm font-medium text-gray-700">Max Upload Size (MB)</label>
+                                <input type="number" id="maxFileSize" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="50">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Clear Cache</p>
+                                <p class="text-sm text-gray-500">Clear all cached files and pages</p>
+                            </div>
+                            <button onclick="clearCache()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                                <i class="fas fa-trash mr-2"></i>Clear Cache
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrations Settings -->
+                <div id="integrations-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Integrations</h3>
+                        <p class="mt-1 text-sm text-gray-500">Connect with third-party services</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="recaptchaSiteKey" class="block text-sm font-medium text-gray-700">reCAPTCHA Site Key</label>
+                                <input type="text" id="recaptchaSiteKey" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="recaptchaSecretKey" class="block text-sm font-medium text-gray-700">reCAPTCHA Secret Key</label>
+                                <input type="password" id="recaptchaSecretKey" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="facebookAppId" class="block text-sm font-medium text-gray-700">Facebook App ID</label>
+                                <input type="text" id="facebookAppId" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="twitterHandle" class="block text-sm font-medium text-gray-700">Twitter Handle</label>
+                                <input type="text" id="twitterHandle" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="@yourusername">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="disqusShortname" class="block text-sm font-medium text-gray-700">Disqus Shortname</label>
+                            <input type="text" id="disqusShortname" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <p class="mt-1 text-sm text-gray-500">For blog comments integration</p>
+                        </div>
+
+                        <div>
+                            <label for="customScripts" class="block text-sm font-medium text-gray-700">Custom Scripts (Header)</label>
+                            <textarea id="customScripts" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder="<script>...</script>"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div id="advanced-section" class="settings-section bg-white shadow rounded-lg hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Advanced Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Advanced configuration options</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                            <div class="flex">
+                                <i class="fas fa-exclamation-triangle text-red-400 mt-0.5"></i>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-red-800">Warning</h3>
+                                    <p class="mt-1 text-sm text-red-700">These settings can affect site functionality. Only modify if you know what you're doing.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="debugMode" class="flex items-center">
+                                <input type="checkbox" id="debugMode" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-700">Enable debug mode</span>
+                            </label>
+                            <p class="mt-1 text-sm text-gray-500">Shows detailed error messages and logs</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="databasePool" class="block text-sm font-medium text-gray-700">Database Pool Size</label>
+                                <input type="number" id="databasePool" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="10">
+                            </div>
+                            <div>
+                                <label for="serverTimeout" class="block text-sm font-medium text-gray-700">Server Timeout (seconds)</label>
+                                <input type="number" id="serverTimeout" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="30">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="customConfig" class="block text-sm font-medium text-gray-700">Custom Configuration (JSON)</label>
+                            <textarea id="customConfig" rows="8" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder='{"key": "value"}'></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Reset to Defaults</p>
+                                <p class="text-sm text-gray-500">Reset all settings to their default values</p>
+                            </div>
+                            <button onclick="resetSettings()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                                <i class="fas fa-undo mr-2"></i>Reset All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Notification -->
+    <div id="saveNotification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg hidden z-50">
+        <div class="flex items-center">
+            <i class="fas fa-check mr-2"></i>
+            <span>Settings saved successfully!</span>
+        </div>
+    </div>
+
+    <script>
+        // Settings navigation
+        document.querySelectorAll('.settings-nav-item').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all nav items
+                document.querySelectorAll('.settings-nav-item').forEach(b => {
+                    b.classList.remove('active', 'text-blue-600', 'bg-blue-50', 'border-r-2', 'border-blue-600');
+                    b.classList.add('text-gray-600');
+                });
+                
+                // Add active class to clicked item
+                button.classList.add('active', 'text-blue-600', 'bg-blue-50', 'border-r-2', 'border-blue-600');
+                button.classList.remove('text-gray-600');
+                
+                // Hide all sections
+                document.querySelectorAll('.settings-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show selected section
+                const sectionName = button.getAttribute('data-section');
+                document.getElementById(sectionName + '-section').classList.remove('hidden');
+            });
+        });
+
+        // Color picker sync
+        document.getElementById('primaryColor').addEventListener('input', function() {
+            this.nextElementSibling.value = this.value;
+        });
+
+        document.getElementById('secondaryColor').addEventListener('input', function() {
+            this.nextElementSibling.value = this.value;
+        });
+
+        // Logo upload handling
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('logoPreview');
+                    const placeholder = document.getElementById('logoPlaceholder');
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function saveAllSettings() {
+            const settings = {
+                general: {
+                    siteTitle: document.getElementById('siteTitle').value,
+                    siteTagline: document.getElementById('siteTagline').value,
+                    siteDescription: document.getElementById('siteDescription').value,
+                    siteUrl: document.getElementById('siteUrl').value,
+                    adminEmail: document.getElementById('adminEmail').value,
+                    timezone: document.getElementById('timezone').value,
+                    language: document.getElementById('language').value,
+                    maintenanceMode: document.getElementById('maintenanceMode').checked
+                },
+                appearance: {
+                    activeTheme: document.getElementById('activeTheme').value,
+                    primaryColor: document.getElementById('primaryColor').value,
+                    secondaryColor: document.getElementById('secondaryColor').value,
+                    customCSS: document.getElementById('customCSS').value,
+                    darkModeEnabled: document.getElementById('darkModeEnabled').checked,
+                    responsiveImages: document.getElementById('responsiveImages').checked
+                },
+                email: {
+                    driver: document.getElementById('emailDriver').value,
+                    smtpHost: document.getElementById('smtpHost').value,
+                    smtpPort: document.getElementById('smtpPort').value,
+                    smtpUsername: document.getElementById('smtpUsername').value,
+                    smtpPassword: document.getElementById('smtpPassword').value,
+                    fromEmail: document.getElementById('fromEmail').value,
+                    fromName: document.getElementById('fromName').value
+                },
+                security: {
+                    twoFactorAuth: document.getElementById('twoFactorAuth').checked,
+                    bruteForceProtection: document.getElementById('bruteForceProtection').checked,
+                    sessionTimeout: document.getElementById('sessionTimeout').checked,
+                    sessionDuration: document.getElementById('sessionDuration').value,
+                    maxLoginAttempts: document.getElementById('maxLoginAttempts').value,
+                    minPasswordLength: document.getElementById('minPasswordLength').value,
+                    requireUppercase: document.getElementById('requireUppercase').checked,
+                    requireNumbers: document.getElementById('requireNumbers').checked,
+                    requireSpecialChars: document.getElementById('requireSpecialChars').checked
+                },
+                seo: {
+                    metaDescription: document.getElementById('metaDescription').value,
+                    metaKeywords: document.getElementById('metaKeywords').value,
+                    googleAnalytics: document.getElementById('googleAnalytics').value,
+                    googleSearchConsole: document.getElementById('googleSearchConsole').value,
+                    robotsTxt: document.getElementById('robotsTxt').value,
+                    generateSitemap: document.getElementById('generateSitemap').checked,
+                    cleanUrls: document.getElementById('cleanUrls').checked
+                },
+                performance: {
+                    enableCaching: document.getElementById('enableCaching').checked,
+                    enableCompression: document.getElementById('enableCompression').checked,
+                    enableMinification: document.getElementById('enableMinification').checked,
+                    enableLazyLoading: document.getElementById('enableLazyLoading').checked,
+                    cacheExpiry: document.getElementById('cacheExpiry').value,
+                    maxFileSize: document.getElementById('maxFileSize').value
+                },
+                integrations: {
+                    recaptchaSiteKey: document.getElementById('recaptchaSiteKey').value,
+                    recaptchaSecretKey: document.getElementById('recaptchaSecretKey').value,
+                    facebookAppId: document.getElementById('facebookAppId').value,
+                    twitterHandle: document.getElementById('twitterHandle').value,
+                    disqusShortname: document.getElementById('disqusShortname').value,
+                    customScripts: document.getElementById('customScripts').value
+                },
+                advanced: {
+                    debugMode: document.getElementById('debugMode').checked,
+                    databasePool: document.getElementById('databasePool').value,
+                    serverTimeout: document.getElementById('serverTimeout').value,
+                    customConfig: document.getElementById('customConfig').value
+                }
+            };
+
+            try {
+                const response = await fetch('/api/v1/admin/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    showSaveNotification();
+                } else {
+                    alert('Failed to save settings');
+                }
+            } catch (error) {
+                alert('Error saving settings: ' + error.message);
+            }
+        }
+
+        function showSaveNotification() {
+            const notification = document.getElementById('saveNotification');
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        async function sendTestEmail() {
+            try {
+                const response = await fetch('/api/v1/admin/test-email', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Test email sent successfully!');
+                } else {
+                    alert('Failed to send test email');
+                }
+            } catch (error) {
+                alert('Error sending test email: ' + error.message);
+            }
+        }
+
+        async function clearCache() {
+            if (confirm('Are you sure you want to clear all cache?')) {
+                try {
+                    const response = await fetch('/api/v1/admin/clear-cache', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('Cache cleared successfully!');
+                    } else {
+                        alert('Failed to clear cache');
+                    }
+                } catch (error) {
+                    alert('Error clearing cache: ' + error.message);
+                }
+            }
+        }
+
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+                // Reset form to defaults
+                window.location.reload();
+            }
+        }
+
+        function exportSettings() {
+            // Implementation for exporting settings
+            alert('Export functionality will be implemented');
+        }
+
+        function importSettings() {
+            // Implementation for importing settings
+            alert('Import functionality will be implemented');
+        }
+
+        // Auto-save functionality
+        let saveTimeout;
+        document.querySelectorAll('input, textarea, select').forEach(element => {
+            element.addEventListener('change', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveAllSettings, 2000); // Auto-save after 2 seconds of inactivity
+            });
+        });
+
+        // Load settings on page load
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/v1/admin/settings', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    }
+                });
+
+                if (response.ok) {
+                    const settings = await response.json();
+                    // Populate form fields with loaded settings
+                    // Implementation would map settings to form fields
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+
+<!-- components/card.html - Card Component -->
+{{define "components/card.html"}}
+<div class="card {{.Classes}}">
+    {{if .Image}}
+        <a href="{{.URL}}" class="block">
+            <img src="{{.Image}}" alt="{{.Title}}" class="w-full h-48 object-cover rounded-lg mb-4">
+        </a>
+    {{end}}
+    
+    {{if .Category}}
+        <div class="mb-2">
+            <a href="{{.Category.URL}}" class="text-sm text-primary hover:text-accent">
+                {{.Category.Name}}
+            </a>
+        </div>
+    {{end}}
+    
+    <h3 class="text-xl font-semibold mb-3">
+        <a href="{{.URL}}" class="text-text-primary hover:text-primary">{{.Title}}</a>
+    </h3>
+    
+    {{if .Excerpt}}
+        <p class="text-text-secondary mb-4">{{.Excerpt}}</p>
+    {{end}}
+    
+    {{if .Meta}}
+        <div class="flex items-center text-sm text-text-secondary mb-4">
+            {{if .Meta.Date}}
+                <time datetime="{{.Meta.Date}}">{{.Meta.Date | formatDate}}</time>
+            {{end}}
+            {{if .Meta.Author}}
+                <span class="mx-2">•</span>
+                <span>{{.Meta.Author}}</span>
+            {{end}}
+            {{if .Meta.ReadTime}}
+                <span class="mx-2">•</span>
+                <span>{{.Meta.ReadTime}} min read</span>
+            {{end}}
+        </div>
+    {{end}}
+    
+    {{if .Tags}}
+        <div class="flex flex-wrap gap-2 mb-4">
+            {{range .Tags}}
+                <span class="px-2 py-1 text-xs bg-surface text-text-secondary rounded">{{.Name}}</span>
+            {{end}}
+        </div>
+    {{end}}
+    
+    <a href="{{.URL}}" class="text-primary hover:text-accent font-medium">
+        Read More →
+    </a>
+</div>
+{{end}}

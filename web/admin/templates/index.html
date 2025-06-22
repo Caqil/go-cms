@@ -1,1 +1,680 @@
-<!-- Admin dashboard HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Templates - Go CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/admin" class="text-xl font-bold text-gray-900">Go CMS</a>
+                    <nav class="ml-8 flex space-x-4">
+                        <a href="/admin/dashboard" class="text-gray-500 hover:text-gray-700">Dashboard</a>
+                        <a href="/admin/themes" class="text-blue-600 font-medium">Themes</a>
+                        <a href="/admin/users" class="text-gray-500 hover:text-gray-700">Users</a>
+                        <a href="/admin/settings" class="text-gray-500 hover:text-gray-700">Settings</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center text-sm bg-white rounded-full focus:outline-none" id="user-menu">
+                            <img class="h-8 w-8 rounded-full" src="/api/user/avatar" alt="User">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li><a href="/admin" class="text-gray-500 hover:text-gray-700">Admin</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+                <li><a href="/admin/themes" class="text-gray-500 hover:text-gray-700">Themes</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+                <li class="text-gray-900 font-medium">Templates</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-8">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">Theme Templates</h2>
+                <p class="mt-1 text-sm text-gray-500">Manage and edit your theme templates</p>
+            </div>
+            <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+                <button onclick="createTemplate()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>New Template
+                </button>
+                <button onclick="backupTemplates()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>Backup
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Template Tree -->
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Template Structure</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="template-tree">
+                            <!-- Layouts -->
+                            <div class="mb-4">
+                                <button class="folder-toggle flex items-center w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900" data-target="layouts-folder">
+                                    <i class="fas fa-folder mr-2 text-yellow-600"></i>
+                                    <span>layouts</span>
+                                    <i class="fas fa-chevron-down ml-auto transform transition-transform"></i>
+                                </button>
+                                <div id="layouts-folder" class="ml-6 mt-2 space-y-1">
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="layouts/main.html">
+                                        <i class="fas fa-file-code mr-2 text-blue-500"></i>main.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="layouts/admin.html">
+                                        <i class="fas fa-file-code mr-2 text-blue-500"></i>admin.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="layouts/error.html">
+                                        <i class="fas fa-file-code mr-2 text-blue-500"></i>error.html
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Pages -->
+                            <div class="mb-4">
+                                <button class="folder-toggle flex items-center w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900" data-target="pages-folder">
+                                    <i class="fas fa-folder mr-2 text-yellow-600"></i>
+                                    <span>pages</span>
+                                    <i class="fas fa-chevron-down ml-auto transform transition-transform"></i>
+                                </button>
+                                <div id="pages-folder" class="ml-6 mt-2 space-y-1">
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="pages/home.html">
+                                        <i class="fas fa-file-code mr-2 text-green-500"></i>home.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="pages/blog.html">
+                                        <i class="fas fa-file-code mr-2 text-green-500"></i>blog.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="pages/post.html">
+                                        <i class="fas fa-file-code mr-2 text-green-500"></i>post.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="pages/about.html">
+                                        <i class="fas fa-file-code mr-2 text-green-500"></i>about.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="pages/contact.html">
+                                        <i class="fas fa-file-code mr-2 text-green-500"></i>contact.html
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Partials -->
+                            <div class="mb-4">
+                                <button class="folder-toggle flex items-center w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900" data-target="partials-folder">
+                                    <i class="fas fa-folder mr-2 text-yellow-600"></i>
+                                    <span>partials</span>
+                                    <i class="fas fa-chevron-down ml-auto transform transition-transform"></i>
+                                </button>
+                                <div id="partials-folder" class="ml-6 mt-2 space-y-1">
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="partials/header.html">
+                                        <i class="fas fa-file-code mr-2 text-purple-500"></i>header.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="partials/footer.html">
+                                        <i class="fas fa-file-code mr-2 text-purple-500"></i>footer.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="partials/navigation.html">
+                                        <i class="fas fa-file-code mr-2 text-purple-500"></i>navigation.html
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Components -->
+                            <div class="mb-4">
+                                <button class="folder-toggle flex items-center w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900" data-target="components-folder">
+                                    <i class="fas fa-folder mr-2 text-yellow-600"></i>
+                                    <span>components</span>
+                                    <i class="fas fa-chevron-down ml-auto transform transition-transform"></i>
+                                </button>
+                                <div id="components-folder" class="ml-6 mt-2 space-y-1">
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="components/hero.html">
+                                        <i class="fas fa-file-code mr-2 text-orange-500"></i>hero.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="components/card.html">
+                                        <i class="fas fa-file-code mr-2 text-orange-500"></i>card.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="components/modal.html">
+                                        <i class="fas fa-file-code mr-2 text-orange-500"></i>modal.html
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Widgets -->
+                            <div class="mb-4">
+                                <button class="folder-toggle flex items-center w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900" data-target="widgets-folder">
+                                    <i class="fas fa-folder mr-2 text-yellow-600"></i>
+                                    <span>widgets</span>
+                                    <i class="fas fa-chevron-down ml-auto transform transition-transform"></i>
+                                </button>
+                                <div id="widgets-folder" class="ml-6 mt-2 space-y-1">
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="widgets/search.html">
+                                        <i class="fas fa-file-code mr-2 text-red-500"></i>search.html
+                                    </button>
+                                    <button class="template-file flex items-center w-full text-left text-sm text-gray-600 hover:text-blue-600 py-1" data-file="widgets/recent-posts.html">
+                                        <i class="fas fa-file-code mr-2 text-red-500"></i>recent-posts.html
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Editor -->
+            <div class="lg:col-span-3">
+                <div class="bg-white shadow rounded-lg">
+                    <!-- Editor Header -->
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <h3 class="text-lg font-medium text-gray-900">Template Editor</h3>
+                                <span id="currentFile" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">No file selected</span>
+                                <span id="fileStatus" class="hidden text-sm">
+                                    <span class="text-green-600"><i class="fas fa-check mr-1"></i>Saved</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="validateTemplate()" class="text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-check-circle mr-1"></i>Validate
+                                </button>
+                                <button onclick="previewTemplate()" class="text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye mr-1"></i>Preview
+                                </button>
+                                <button onclick="saveTemplate()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded text-white bg-blue-600 hover:bg-blue-700">
+                                    <i class="fas fa-save mr-1"></i>Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor Tabs -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex space-x-8 px-6">
+                            <button class="editor-tab active border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="editor">
+                                <i class="fas fa-code mr-2"></i>Editor
+                            </button>
+                            <button class="editor-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="preview">
+                                <i class="fas fa-eye mr-2"></i>Preview
+                            </button>
+                            <button class="editor-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="variables">
+                                <i class="fas fa-tags mr-2"></i>Variables
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Editor Content -->
+                    <div class="p-6">
+                        <!-- Code Editor Tab -->
+                        <div id="editor-tab" class="editor-content">
+                            <div class="mb-4 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <select id="themeSelect" class="text-sm border-gray-300 rounded-md">
+                                        <option value="default">Default Theme</option>
+                                        <option value="modern">Modern Theme</option>
+                                        <option value="minimal">Minimal Theme</option>
+                                    </select>
+                                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                        <span>Ln <span id="currentLine">1</span></span>
+                                        <span>Col <span id="currentCol">1</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="formatCode()" class="text-sm text-gray-600 hover:text-gray-800">
+                                        <i class="fas fa-magic mr-1"></i>Format
+                                    </button>
+                                    <button onclick="toggleFullscreen()" class="text-sm text-gray-600 hover:text-gray-800">
+                                        <i class="fas fa-expand mr-1"></i>Fullscreen
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <textarea id="templateEditor" class="w-full h-96 font-mono text-sm border border-gray-300 rounded-md p-4 focus:ring-blue-500 focus:border-blue-500" placeholder="Select a template file to start editing..."></textarea>
+                                <div class="absolute top-4 right-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="undoEdit()" class="p-1 text-gray-400 hover:text-gray-600" title="Undo">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        <button onclick="redoEdit()" class="p-1 text-gray-400 hover:text-gray-600" title="Redo">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Syntax highlighting and validation results -->
+                            <div id="validationResults" class="hidden mt-4 p-4 bg-gray-50 rounded-md">
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">Validation Results</h4>
+                                <div id="validationMessages"></div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Tab -->
+                        <div id="preview-tab" class="editor-content hidden">
+                            <div class="border rounded-md">
+                                <div class="bg-gray-50 px-4 py-2 border-b flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Template Preview</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="refreshPreview()" class="text-sm text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-sync mr-1"></i>Refresh
+                                        </button>
+                                        <button onclick="openPreviewNewTab()" class="text-sm text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-external-link-alt mr-1"></i>New Tab
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <iframe id="previewFrame" class="w-full h-96 border rounded" src="about:blank"></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variables Tab -->
+                        <div id="variables-tab" class="editor-content hidden">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900 mb-3">Available Template Variables</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="bg-gray-50 p-4 rounded-md">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-2">Site Variables</h5>
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><code class="bg-white px-1 rounded">.Site.Title</code> - Site title</li>
+                                                <li><code class="bg-white px-1 rounded">.Site.Description</code> - Site description</li>
+                                                <li><code class="bg-white px-1 rounded">.Site.Logo</code> - Site logo URL</li>
+                                                <li><code class="bg-white px-1 rounded">.Site.Email</code> - Contact email</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-md">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-2">Page Variables</h5>
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><code class="bg-white px-1 rounded">.Page.Title</code> - Page title</li>
+                                                <li><code class="bg-white px-1 rounded">.Page.Content</code> - Page content</li>
+                                                <li><code class="bg-white px-1 rounded">.Page.Image</code> - Featured image</li>
+                                                <li><code class="bg-white px-1 rounded">.Page.Date</code> - Publication date</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-md">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-2">Theme Variables</h5>
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><code class="bg-white px-1 rounded">.Theme.Colors.primary</code> - Primary color</li>
+                                                <li><code class="bg-white px-1 rounded">.Theme.CustomCSS</code> - Custom CSS</li>
+                                                <li><code class="bg-white px-1 rounded">.Theme.Options</code> - Theme options</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-md">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-2">Helper Functions</h5>
+                                            <ul class="text-sm text-gray-600 space-y-1">
+                                                <li><code class="bg-white px-1 rounded">formatDate</code> - Format dates</li>
+                                                <li><code class="bg-white px-1 rounded">truncate</code> - Truncate text</li>
+                                                <li><code class="bg-white px-1 rounded">safeHTML</code> - Safe HTML output</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900 mb-3">Template Examples</h4>
+                                    <div class="space-y-4">
+                                        <div class="bg-gray-50 p-4 rounded-md">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-2">Conditional Display</h5>
+                                            <pre class="text-sm"><code class="language-html">{{if .Page.Image}}
+    &lt;img src="{{.Page.Image}}" alt="{{.Page.Title}}"&gt;
+{{end}}</code></pre>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-md">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-2">Loop Through Items</h5>
+                                            <pre class="text-sm"><code class="language-html">{{range .Posts}}
+    &lt;article&gt;
+        &lt;h2&gt;{{.Title}}&lt;/h2&gt;
+        &lt;p&gt;{{.Content}}&lt;/p&gt;
+    &lt;/article&gt;
+{{end}}</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Create Modal -->
+    <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Create New Template</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="templateName" class="block text-sm font-medium text-gray-700">Template Name</label>
+                            <input type="text" id="templateName" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="template-name.html">
+                        </div>
+                        <div>
+                            <label for="templateType" class="block text-sm font-medium text-gray-700">Template Type</label>
+                            <select id="templateType" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="page">Page Template</option>
+                                <option value="layout">Layout Template</option>
+                                <option value="partial">Partial Template</option>
+                                <option value="component">Component Template</option>
+                                <option value="widget">Widget Template</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="templateDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea id="templateDescription" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Template description..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                    <button type="button" onclick="createNewTemplate()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:col-start-2 sm:text-sm">
+                        Create Template
+                    </button>
+                    <button type="button" onclick="closeCreateModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:col-start-1 sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTemplate = null;
+        let unsavedChanges = false;
+
+        // Folder toggle functionality
+        document.querySelectorAll('.folder-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const target = document.getElementById(button.getAttribute('data-target'));
+                const icon = button.querySelector('.fa-chevron-down');
+                
+                if (target.classList.contains('hidden')) {
+                    target.classList.remove('hidden');
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    target.classList.add('hidden');
+                    icon.style.transform = 'rotate(-90deg)';
+                }
+            });
+        });
+
+        // Template file selection
+        document.querySelectorAll('.template-file').forEach(button => {
+            button.addEventListener('click', () => {
+                if (unsavedChanges) {
+                    if (!confirm('You have unsaved changes. Continue?')) {
+                        return;
+                    }
+                }
+                
+                // Remove active class from all files
+                document.querySelectorAll('.template-file').forEach(b => {
+                    b.classList.remove('bg-blue-50', 'text-blue-700');
+                });
+                
+                // Add active class to clicked file
+                button.classList.add('bg-blue-50', 'text-blue-700');
+                
+                const fileName = button.getAttribute('data-file');
+                loadTemplate(fileName);
+            });
+        });
+
+        // Editor tab switching
+        document.querySelectorAll('.editor-tab').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.editor-tab').forEach(b => {
+                    b.classList.remove('border-blue-500', 'text-blue-600');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                
+                // Add active class to clicked tab
+                button.classList.add('border-blue-500', 'text-blue-600');
+                button.classList.remove('border-transparent', 'text-gray-500');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.editor-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show selected tab content
+                const tabName = button.getAttribute('data-tab');
+                document.getElementById(tabName + '-tab').classList.remove('hidden');
+            });
+        });
+
+        // Template editor change tracking
+        document.getElementById('templateEditor').addEventListener('input', () => {
+            unsavedChanges = true;
+            document.getElementById('fileStatus').classList.add('hidden');
+        });
+
+        async function loadTemplate(fileName) {
+            try {
+                const response = await fetch(`/api/v1/admin/themes/templates/${fileName}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('templateEditor').value = data.content;
+                    document.getElementById('currentFile').textContent = fileName;
+                    currentTemplate = fileName;
+                    unsavedChanges = false;
+                } else {
+                    alert('Failed to load template');
+                }
+            } catch (error) {
+                alert('Error loading template: ' + error.message);
+            }
+        }
+
+        async function saveTemplate() {
+            if (!currentTemplate) {
+                alert('No template selected');
+                return;
+            }
+
+            const content = document.getElementById('templateEditor').value;
+
+            try {
+                const response = await fetch(`/api/v1/admin/themes/templates/${currentTemplate}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: JSON.stringify({ content: content })
+                });
+
+                if (response.ok) {
+                    unsavedChanges = false;
+                    document.getElementById('fileStatus').classList.remove('hidden');
+                    setTimeout(() => {
+                        document.getElementById('fileStatus').classList.add('hidden');
+                    }, 3000);
+                } else {
+                    alert('Failed to save template');
+                }
+            } catch (error) {
+                alert('Error saving template: ' + error.message);
+            }
+        }
+
+        function validateTemplate() {
+            const content = document.getElementById('templateEditor').value;
+            const results = document.getElementById('validationResults');
+            const messages = document.getElementById('validationMessages');
+            
+            // Simple validation - check for matching brackets
+            const openBrackets = (content.match(/{{/g) || []).length;
+            const closeBrackets = (content.match(/}}/g) || []).length;
+            
+            messages.innerHTML = '';
+            
+            if (openBrackets !== closeBrackets) {
+                messages.innerHTML = '<div class="text-red-600"><i class="fas fa-exclamation-triangle mr-1"></i>Mismatched template brackets</div>';
+            } else {
+                messages.innerHTML = '<div class="text-green-600"><i class="fas fa-check mr-1"></i>Template syntax looks good</div>';
+            }
+            
+            results.classList.remove('hidden');
+        }
+
+        function previewTemplate() {
+            if (!currentTemplate) {
+                alert('No template selected');
+                return;
+            }
+            
+            // Switch to preview tab
+            document.querySelectorAll('.editor-tab').forEach(b => {
+                b.classList.remove('border-blue-500', 'text-blue-600');
+                b.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            const previewTab = document.querySelector('[data-tab="preview"]');
+            previewTab.classList.add('border-blue-500', 'text-blue-600');
+            previewTab.classList.remove('border-transparent', 'text-gray-500');
+            
+            document.querySelectorAll('.editor-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('preview-tab').classList.remove('hidden');
+            
+            refreshPreview();
+        }
+
+        function refreshPreview() {
+            const iframe = document.getElementById('previewFrame');
+            iframe.src = `/api/v1/admin/themes/preview/${currentTemplate}?t=${Date.now()}`;
+        }
+
+        function formatCode() {
+            // Simple code formatting - in a real implementation you'd use a proper formatter
+            const editor = document.getElementById('templateEditor');
+            let content = editor.value;
+            
+            // Basic indentation
+            content = content.replace(/{{/g, '\n{{');
+            content = content.replace(/}}/g, '}}\n');
+            content = content.replace(/\n\s*\n/g, '\n');
+            
+            editor.value = content;
+            unsavedChanges = true;
+        }
+
+        function createTemplate() {
+            document.getElementById('createModal').classList.remove('hidden');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+        }
+
+        async function createNewTemplate() {
+            const name = document.getElementById('templateName').value;
+            const type = document.getElementById('templateType').value;
+            const description = document.getElementById('templateDescription').value;
+
+            if (!name) {
+                alert('Please enter a template name');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/admin/themes/templates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        type: type,
+                        description: description
+                    })
+                });
+
+                if (response.ok) {
+                    closeCreateModal();
+                    window.location.reload(); // Refresh to show new template
+                } else {
+                    alert('Failed to create template');
+                }
+            } catch (error) {
+                alert('Error creating template: ' + error.message);
+            }
+        }
+
+        function backupTemplates() {
+            window.location.href = '/api/v1/admin/themes/backup';
+        }
+
+        function toggleFullscreen() {
+            const editor = document.getElementById('templateEditor');
+            if (editor.requestFullscreen) {
+                editor.requestFullscreen();
+            }
+        }
+
+        function undoEdit() {
+            document.execCommand('undo');
+        }
+
+        function redoEdit() {
+            document.execCommand('redo');
+        }
+
+        function openPreviewNewTab() {
+            if (currentTemplate) {
+                window.open(`/api/v1/admin/themes/preview/${currentTemplate}`, '_blank');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set active editor tab
+            document.querySelector('[data-tab="editor"]').classList.add('border-blue-500', 'text-blue-600');
+            
+            // Enable syntax highlighting
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+        });
+
+        // Auto-save functionality
+        setInterval(() => {
+            if (unsavedChanges && currentTemplate) {
+                saveTemplate();
+            }
+        }, 30000); // Auto-save every 30 seconds
+    </script>
+</body>
+</html>

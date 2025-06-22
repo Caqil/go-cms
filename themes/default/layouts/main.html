@@ -1,0 +1,137 @@
+<!-- layouts/main.html - Main Layout Template -->
+<!DOCTYPE html>
+<html lang="{{.Site.Language | default "en"}}" class="{{if .Theme.DarkMode}}dark{{end}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    {{/* SEO Meta Tags */}}
+    <title>{{if .Page.Title}}{{.Page.Title}} | {{end}}{{.Site.Title}}</title>
+    <meta name="description" content="{{.Page.Description | default .Site.Description}}">
+    <meta name="keywords" content="{{.Page.Keywords | default .Site.Keywords}}">
+    <meta name="author" content="{{.Page.Author | default .Site.Author}}">
+    
+    {{/* Open Graph */}}
+    <meta property="og:title" content="{{.Page.Title | default .Site.Title}}">
+    <meta property="og:description" content="{{.Page.Description | default .Site.Description}}">
+    <meta property="og:type" content="{{.Page.Type | default "website"}}">
+    <meta property="og:url" content="{{.Page.URL}}">
+    <meta property="og:image" content="{{.Page.Image | default .Site.Logo}}">
+    <meta property="og:site_name" content="{{.Site.Title}}">
+    
+    {{/* Twitter Card */}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{.Page.Title | default .Site.Title}}">
+    <meta name="twitter:description" content="{{.Page.Description | default .Site.Description}}">
+    <meta name="twitter:image" content="{{.Page.Image | default .Site.Logo}}">
+    
+    {{/* Canonical URL */}}
+    <link rel="canonical" href="{{.Page.URL}}">
+    
+    {{/* Favicon */}}
+    <link rel="icon" type="image/x-icon" href="{{.Theme.Favicon | default "/favicon.ico"}}">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    
+    {{/* CSS Variables for Customization */}}
+    <style>
+        :root {
+            --color-primary: {{.Theme.Colors.primary | default "#2563eb"}};
+            --color-secondary: {{.Theme.Colors.secondary | default "#64748b"}};
+            --color-accent: {{.Theme.Colors.accent | default "#f59e0b"}};
+            --color-success: {{.Theme.Colors.success | default "#10b981"}};
+            --color-warning: {{.Theme.Colors.warning | default "#f59e0b"}};
+            --color-error: {{.Theme.Colors.error | default "#ef4444"}};
+            --color-background: {{.Theme.Colors.background | default "#ffffff"}};
+            --color-surface: {{.Theme.Colors.surface | default "#f8fafc"}};
+            --color-text-primary: {{.Theme.Colors.text_primary | default "#1f2937"}};
+            --color-text-secondary: {{.Theme.Colors.text_secondary | default "#6b7280"}};
+            --color-border: {{.Theme.Colors.border | default "#e5e7eb"}};
+            
+            --font-family-primary: {{.Theme.Typography.font_family_primary | default "Inter, system-ui, sans-serif"}};
+            --font-family-heading: {{.Theme.Typography.font_family_heading | default "Inter, system-ui, sans-serif"}};
+            --font-size-base: {{.Theme.Typography.font_size_base | default "16px"}};
+            --line-height-base: {{.Theme.Typography.line_height_base | default "1.6"}};
+            
+            --container-max-width: {{.Theme.Layout.container_max_width | default "1200px"}};
+            --header-height: {{.Theme.Layout.header_height | default "80px"}};
+            --sidebar-width: {{.Theme.Layout.sidebar_width | default "280px"}};
+            --border-radius: {{.Theme.Layout.border_radius | default "8px"}};
+            --spacing-unit: {{.Theme.Layout.spacing_unit | default "16px"}};
+        }
+        
+        .dark {
+            --color-background: #111827;
+            --color-surface: #1f2937;
+            --color-text-primary: #f9fafb;
+            --color-text-secondary: #d1d5db;
+            --color-border: #374151;
+        }
+    </style>
+    
+    {{/* Theme CSS */}}
+    <link rel="stylesheet" href="/themes/default/assets/css/main.css">
+    <link rel="stylesheet" href="/themes/default/assets/css/components.css">
+    
+    {{/* Custom CSS */}}
+    {{if .Theme.CustomCSS}}
+    <style>{{.Theme.CustomCSS}}</style>
+    {{end}}
+    
+    {{/* Header Code */}}
+    {{if .Theme.HeaderCode}}{{.Theme.HeaderCode}}{{end}}
+    
+    {{/* Analytics */}}
+    {{if .Theme.Analytics}}{{.Theme.Analytics}}{{end}}
+</head>
+<body class="font-sans bg-background text-text-primary">
+    {{/* Skip to content for accessibility */}}
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded">
+        Skip to main content
+    </a>
+    
+    {{/* Header */}}
+    {{template "partials/header.html" .}}
+    
+    {{/* Main Content */}}
+    <main id="main-content" class="flex-1">
+        {{/* Breadcrumb */}}
+        {{if .Theme.Options.enable_breadcrumbs}}
+            {{template "partials/breadcrumb.html" .}}
+        {{end}}
+        
+        {{/* Page Content */}}
+        <div class="container mx-auto px-4 py-8">
+            {{if .Theme.Options.enable_sidebar}}
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div class="lg:col-span-3">
+                        {{.Content}}
+                    </div>
+                    <aside class="lg:col-span-1">
+                        {{template "partials/sidebar.html" .}}
+                    </aside>
+                </div>
+            {{else}}
+                {{.Content}}
+            {{end}}
+        </div>
+    </main>
+    
+    {{/* Footer */}}
+    {{template "partials/footer.html" .}}
+    
+    {{/* JavaScript */}}
+    <script src="/themes/default/assets/js/main.js"></script>
+    <script src="/themes/default/assets/js/components.js"></script>
+    
+    {{/* Custom JavaScript */}}
+    {{if .Theme.CustomJS}}
+    <script>{{.Theme.CustomJS}}</script>
+    {{end}}
+    
+    {{/* Footer Code */}}
+    {{if .Theme.FooterCode}}{{.Theme.FooterCode}}{{end}}
+</body>
+</html>

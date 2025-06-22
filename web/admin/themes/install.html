@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install Theme - Go CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .drag-area {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        .drag-area.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/admin" class="text-xl font-bold text-gray-900">Go CMS</a>
+                    <nav class="ml-8 flex space-x-4">
+                        <a href="/admin/dashboard" class="text-gray-500 hover:text-gray-700">Dashboard</a>
+                        <a href="/admin/themes" class="text-blue-600 font-medium">Themes</a>
+                        <a href="/admin/users" class="text-gray-500 hover:text-gray-700">Users</a>
+                        <a href="/admin/settings" class="text-gray-500 hover:text-gray-700">Settings</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center text-sm bg-white rounded-full focus:outline-none" id="user-menu">
+                            <img class="h-8 w-8 rounded-full" src="/api/user/avatar" alt="User">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li><a href="/admin" class="text-gray-500 hover:text-gray-700">Admin</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+                <li><a href="/admin/themes" class="text-gray-500 hover:text-gray-700">Themes</a></li>
+                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+                <li class="text-gray-900 font-medium">Install Theme</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-8">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">Install Theme</h2>
+                <p class="mt-1 text-sm text-gray-500">Upload and install new themes for your website</p>
+            </div>
+            <div class="mt-4 flex md:mt-0 md:ml-4">
+                <a href="/admin/themes" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Themes
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Upload Area -->
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Upload Theme</h3>
+                        <p class="mt-1 text-sm text-gray-500">Upload a theme zip file or drag and drop it here</p>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Upload Methods Tabs -->
+                        <div class="border-b border-gray-200 mb-6">
+                            <nav class="-mb-px flex space-x-8">
+                                <button class="tab-button active border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="upload">
+                                    <i class="fas fa-upload mr-2"></i>Upload File
+                                </button>
+                                <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="url">
+                                    <i class="fas fa-link mr-2"></i>From URL
+                                </button>
+                                <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" data-tab="marketplace">
+                                    <i class="fas fa-store mr-2"></i>Marketplace
+                                </button>
+                            </nav>
+                        </div>
+
+                        <!-- Upload Tab -->
+                        <div id="upload-tab" class="tab-content">
+                            <div class="drag-area p-8 border-2 border-dashed border-gray-300 rounded-lg text-center" id="dropArea">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-2">Drop your theme here</h4>
+                                    <p class="text-sm text-gray-500 mb-4">or click to browse files</p>
+                                    <input type="file" id="themeFile" accept=".zip" class="hidden">
+                                    <button type="button" onclick="document.getElementById('themeFile').click()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                        <i class="fas fa-folder-open mr-2"></i>Choose File
+                                    </button>
+                                    <p class="mt-2 text-xs text-gray-500">Supported format: ZIP files up to 50MB</p>
+                                </div>
+                            </div>
+
+                            <!-- Upload Progress -->
+                            <div id="uploadProgress" class="hidden mt-6">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span class="text-gray-600">Uploading...</span>
+                                    <span class="text-gray-600"><span id="progressPercent">0</span>%</span>
+                                </div>
+                            </div>
+
+                            <!-- File Info -->
+                            <div id="fileInfo" class="hidden mt-6 p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-archive text-blue-600 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900" id="fileName"></p>
+                                        <p class="text-sm text-gray-500" id="fileSize"></p>
+                                    </div>
+                                    <button type="button" onclick="clearFile()" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- URL Tab -->
+                        <div id="url-tab" class="tab-content hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="themeUrl" class="block text-sm font-medium text-gray-700">Theme URL</label>
+                                    <input type="url" id="themeUrl" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.com/theme.zip">
+                                    <p class="mt-2 text-sm text-gray-500">Enter the URL of a theme zip file</p>
+                                </div>
+                                <button type="button" onclick="downloadTheme()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                    <i class="fas fa-download mr-2"></i>Download & Install
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Marketplace Tab -->
+                        <div id="marketplace-tab" class="tab-content hidden">
+                            <div class="text-center py-8">
+                                <i class="fas fa-store text-4xl text-gray-400 mb-4"></i>
+                                <h4 class="text-lg font-medium text-gray-900 mb-2">Theme Marketplace</h4>
+                                <p class="text-sm text-gray-500 mb-4">Browse and install themes from the marketplace</p>
+                                <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                    <i class="fas fa-external-link-alt mr-2"></i>Browse Marketplace
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Install Button -->
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="activateTheme" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="activateTheme" class="ml-2 block text-sm text-gray-900">Activate theme after installation</label>
+                                </div>
+                                <button type="button" id="installButton" onclick="installTheme()" disabled class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                    <i class="fas fa-download mr-2"></i>Install Theme
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Installation Tips -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Installation Tips</h3>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>Ensure theme is compatible with your CMS version</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>Backup your current theme before installing</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>Test theme on staging environment first</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>Review theme documentation</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Theme Requirements -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Theme Requirements</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">File Format</span>
+                            <span class="text-gray-900 font-medium">ZIP</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Max File Size</span>
+                            <span class="text-gray-900 font-medium">50 MB</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Required Files</span>
+                            <span class="text-gray-900 font-medium">metadata.json</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">CMS Version</span>
+                            <span class="text-gray-900 font-medium">1.0.0+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Installations -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Recent Installations</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-sm">
+                                <div>
+                                    <p class="text-gray-900 font-medium">Modern Blog</p>
+                                    <p class="text-gray-500">2 hours ago</p>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Success</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <div>
+                                    <p class="text-gray-900 font-medium">Corporate</p>
+                                    <p class="text-gray-500">1 day ago</p>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Success</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <div>
+                                    <p class="text-gray-900 font-medium">Portfolio</p>
+                                    <p class="text-gray-500">3 days ago</p>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-5">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Theme Installed Successfully</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">Your theme has been installed and is ready to use.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                    <button type="button" onclick="goToThemes()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:col-start-2 sm:text-sm">
+                        View Themes
+                    </button>
+                    <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:col-start-1 sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-button').forEach(b => {
+                    b.classList.remove('active', 'border-blue-500', 'text-blue-600');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                
+                // Add active class to clicked tab
+                button.classList.add('active', 'border-blue-500', 'text-blue-600');
+                button.classList.remove('border-transparent', 'text-gray-500');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show selected tab content
+                const tabName = button.getAttribute('data-tab');
+                document.getElementById(tabName + '-tab').classList.remove('hidden');
+            });
+        });
+
+        // Drag and drop functionality
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('themeFile');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
+                    alert('Please select a ZIP file');
+                    return;
+                }
+                displayFileInfo(file);
+                document.getElementById('installButton').disabled = false;
+            }
+        }
+
+        function displayFileInfo(file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('fileInfo').classList.remove('hidden');
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            document.getElementById('fileInfo').classList.add('hidden');
+            document.getElementById('installButton').disabled = true;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function installTheme() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a theme file first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('theme', file);
+            formData.append('activate', document.getElementById('activateTheme').checked);
+
+            // Show progress
+            document.getElementById('uploadProgress').classList.remove('hidden');
+            document.getElementById('installButton').disabled = true;
+
+            try {
+                const response = await fetch('/api/v1/admin/themes/install', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    document.getElementById('successModal').classList.remove('hidden');
+                } else {
+                    const error = await response.json();
+                    alert('Installation failed: ' + error.message);
+                }
+            } catch (error) {
+                alert('Installation failed: ' + error.message);
+            } finally {
+                document.getElementById('uploadProgress').classList.add('hidden');
+                document.getElementById('installButton').disabled = false;
+            }
+        }
+
+        function downloadTheme() {
+            const url = document.getElementById('themeUrl').value;
+            if (!url) {
+                alert('Please enter a theme URL');
+                return;
+            }
+            // Implementation for downloading theme from URL
+            alert('Download functionality will be implemented');
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        function goToThemes() {
+            window.location.href = '/admin/themes';
+        }
+
+        // Initialize active tab
+        document.querySelector('.tab-button[data-tab="upload"]').classList.add('border-blue-500', 'text-blue-600');
+    </script>
+</body>
+</html>

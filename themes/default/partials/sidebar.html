@@ -1,0 +1,22 @@
+
+<!-- partials/sidebar.html - Sidebar Component -->
+<div class="space-y-8">
+    {{/* Search Widget */}}
+    {{if .Theme.Options.enable_search}}
+        {{template "widgets/search.html" .}}
+    {{end}}
+    
+    {{/* Recent Posts Widget */}}
+    {{template "widgets/recent-posts.html" .}}
+    
+    {{/* Categories Widget */}}
+    {{template "widgets/categories.html" .}}
+    
+    {{/* Tag Cloud Widget */}}
+    {{template "widgets/tag-cloud.html" .}}
+    
+    {{/* Custom Widgets */}}
+    {{range .Widgets}}
+        {{template .Template .}}
+    {{end}}
+</div>

@@ -1,0 +1,32 @@
+
+<!-- partials/navigation.html - Navigation Component -->
+<ul class="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0">
+    {{range .}}
+        <li class="relative group">
+            <a href="{{.URL}}" 
+               class="block px-3 py-2 text-text-secondary hover:text-primary transition-colors duration-200
+                      {{if .IsActive}}text-primary font-medium{{end}}
+                      {{if .Children}}pr-8{{end}}">
+                {{.Name}}
+                {{if .Children}}
+                    <svg class="w-4 h-4 absolute right-2 top-3 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                {{end}}
+            </a>
+            
+            {{/* Dropdown Menu */}}
+            {{if .Children}}
+                <ul class="absolute left-0 top-full mt-1 w-48 bg-surface border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    {{range .Children}}
+                        <li>
+                            <a href="{{.URL}}" class="block px-4 py-2 text-text-secondary hover:text-primary hover:bg-background transition-colors duration-200 {{if .IsActive}}text-primary font-medium{{end}}">
+                                {{.Name}}
+                            </a>
+                        </li>
+                    {{end}}
+                </ul>
+            {{end}}
+        </li>
+    {{end}}
+</ul>
