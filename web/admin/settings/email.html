@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Settings - CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <div class="flex">
+            <div class="w-64 bg-gray-800 min-h-screen">
+                <div class="p-4">
+                    <h1 class="text-white text-lg font-semibold">CMS Admin</h1>
+                </div>
+                <nav class="mt-8 space-y-1">
+                    <a href="../index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Dashboard
+                    </a>
+                    <a href="index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        General Settings
+                    </a>
+                    <a href="security.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        Security
+                    </a>
+                    <a href="email.html" class="block px-4 py-2 text-primary-400 bg-gray-900">
+                        Email Settings
+                    </a>
+                </nav>
+            </div>
+
+            <div class="flex-1">
+                <div class="p-8">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="md:flex md:items-center md:justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                                    Email Settings
+                                </h2>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Configure email delivery and notification settings.
+                                </p>
+                            </div>
+                            <div class="mt-4 flex md:mt-0 md:ml-4">
+                                <button type="button" onclick="testEmailSettings()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Send Test Email
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 space-y-8">
+                            <!-- SMTP Settings -->
+                            <div class="bg-white shadow rounded-lg">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">SMTP Configuration</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Configure your SMTP server for sending emails.</p>
+                                    
+                                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                        <div class="sm:col-span-3">
+                                            <label for="smtp-host" class="block text-sm font-medium text-gray-700">SMTP Host</label>
+                                            <input type="text" name="smtp-host" id="smtp-host" placeholder="smtp.example.com" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                        </div>
+
+                                        <div class="sm:col-span-1">
+                                            <label for="smtp-port" class="block text-sm font-medium text-gray-700">Port</label>
+                                            <input type="number" name="smtp-port" id="smtp-port" value="587" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label for="smtp-encryption" class="block text-sm font-medium text-gray-700">Encryption</label>
+                                            <select id="smtp-encryption" name="smtp-encryption" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                                <option value="tls">TLS</option>
+                                                <option value="ssl">SSL</option>
+                                                <option value="none">None</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="sm:col-span-3">
+                                            <label for="smtp-username" class="block text-sm font-medium text-gray-700">Username</label>
+                                            <input type="text" name="smtp-username" id="smtp-username" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                        </div>
+
+                                        <div class="sm:col-span-3">
+                                            <label for="smtp-password" class="block text-sm font-medium text-gray-700">Password</label>
+                                            <div class="mt-1 relative">
+                                                <input type="password" name="smtp-password" id="smtp-password" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                                <button type="button" onclick="togglePassword('smtp-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="smtp-auth" name="smtp-auth" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="smtp-auth" class="font-medium text-gray-700">Enable SMTP Authentication</label>
+                                                <p class="text-gray-500">Use username and password for SMTP authentication.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email Templates -->
+                            <div class="bg-white shadow rounded-lg">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">Email Templates</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Customize email templates for different notifications.</p>
+                                    
+                                    <div class="mt-6">
+                                        <div class="border-b border-gray-200">
+                                            <nav class="-mb-px flex space-x-8">
+                                                <button onclick="switchEmailTab('welcome')" class="email-tab active border-primary-500 text-primary-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                                    Welcome Email
+                                                </button>
+                                                <button onclick="switchEmailTab('reset')" class="email-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                                    Password Reset
+                                                </button>
+                                                <button onclick="switchEmailTab('notification')" class="email-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                                    Notifications
+                                                </button>
+                                            </nav>
+                                        </div>
+
+                                        <div class="mt-6">
+                                            <div id="welcome-template" class="email-template">
+                                                <div class="grid grid-cols-1 gap-y-6">
+                                                    <div>
+                                                        <label for="welcome-subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                                                        <input type="text" id="welcome-subject" value="Welcome to {{site_name}}!" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                                    </div>
+                                                    <div>
+                                                        <label for="welcome-body" class="block text-sm font-medium text-gray-700">Email Body</label>
+                                                        <textarea id="welcome-body" rows="8" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">Hello {{user_name}},
+
+Welcome to {{site_name}}! Your account has been successfully created.
+
+You can now log in to your account and start exploring all the features we have to offer.
+
+Best regards,
+The {{site_name}} Team
+
+---
+Available variables: {{user_name}}, {{site_name}}, {{site_url}}, {{login_url}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="reset-template" class="email-template hidden">
+                                                <div class="grid grid-cols-1 gap-y-6">
+                                                    <div>
+                                                        <label for="reset-subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                                                        <input type="text" id="reset-subject" value="Reset your password for {{site_name}}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                                    </div>
+                                                    <div>
+                                                        <label for="reset-body" class="block text-sm font-medium text-gray-700">Email Body</label>
+                                                        <textarea id="reset-body" rows="8" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">Hello {{user_name}},
+
+You have requested to reset your password for {{site_name}}.
+
+Click the link below to reset your password:
+{{reset_url}}
+
+This link will expire in 24 hours. If you didn't request this password reset, please ignore this email.
+
+Best regards,
+The {{site_name}} Team
+
+---
+Available variables: {{user_name}}, {{site_name}}, {{reset_url}}, {{expiry_time}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="notification-template" class="email-template hidden">
+                                                <div class="grid grid-cols-1 gap-y-6">
+                                                    <div>
+                                                        <label for="notification-subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                                                        <input type="text" id="notification-subject" value="New notification from {{site_name}}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                                    </div>
+                                                    <div>
+                                                        <label for="notification-body" class="block text-sm font-medium text-gray-700">Email Body</label>
+                                                        <textarea id="notification-body" rows="8" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">Hello {{user_name}},
+
+You have a new notification:
+
+{{notification_title}}
+{{notification_content}}
+
+Visit {{site_url}} to view more details.
+
+Best regards,
+The {{site_name}} Team
+
+---
+Available variables: {{user_name}}, {{site_name}}, {{site_url}}, {{notification_title}}, {{notification_content}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email Notifications -->
+                            <div class="bg-white shadow rounded-lg">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900">Notification Settings</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Configure when to send email notifications.</p>
+                                    
+                                    <div class="mt-6 space-y-6">
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="notify-new-user" name="notify-new-user" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="notify-new-user" class="font-medium text-gray-700">New User Registration</label>
+                                                <p class="text-gray-500">Send welcome email when new users register.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="notify-password-reset" name="notify-password-reset" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="notify-password-reset" class="font-medium text-gray-700">Password Reset</label>
+                                                <p class="text-gray-500">Send email when users request password reset.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="notify-admin-new-user" name="notify-admin-new-user" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="notify-admin-new-user" class="font-medium text-gray-700">Admin New User Notifications</label>
+                                                <p class="text-gray-500">Notify administrators when new users register.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start">
+                                            <div class="flex items-center h-5">
+                                                <input id="notify-system-updates" name="notify-system-updates" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                            </div>
+                                            <div class="ml-3 text-sm">
+                                                <label for="notify-system-updates" class="font-medium text-gray-700">System Updates</label>
+                                                <p class="text-gray-500">Send notifications about system updates and maintenance.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    Reset to Defaults
+                                </button>
+                                <button type="button" onclick="saveEmailSettings()" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/components.js"></script>
+    <script>
+        function switchEmailTab(tabName) {
+            // Hide all templates
+            document.querySelectorAll('.email-template').forEach(template => {
+                template.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.email-tab').forEach(tab => {
+                tab.classList.remove('active', 'border-primary-500', 'text-primary-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Show selected template
+            document.getElementById(tabName + '-template').classList.remove('hidden');
+            
+            // Activate selected tab
+            event.target.classList.add('active', 'border-primary-500', 'text-primary-600');
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+        }
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+
+        function testEmailSettings() {
+            UIComponents.showNotification('Sending test email...', 'info');
+            
+            // Simulate API call
+            setTimeout(() => {
+                UIComponents.showNotification('Test email sent successfully!', 'success');
+            }, 2000);
+        }
+
+        function saveEmailSettings() {
+            const formData = {
+                smtp: {
+                    host: document.getElementById('smtp-host').value,
+                    port: parseInt(document.getElementById('smtp-port').value),
+                    encryption: document.getElementById('smtp-encryption').value,
+                    username: document.getElementById('smtp-username').value,
+                    password: document.getElementById('smtp-password').value,
+                    auth: document.getElementById('smtp-auth').checked
+                },
+                templates: {
+                    welcome: {
+                        subject: document.getElementById('welcome-subject').value,
+                        body: document.getElementById('welcome-body').value
+                    },
+                    reset: {
+                        subject: document.getElementById('reset-subject').value,
+                        body: document.getElementById('reset-body').value
+                    },
+                    notification: {
+                        subject: document.getElementById('notification-subject').value,
+                        body: document.getElementById('notification-body').value
+                    }
+                },
+                notifications: {
+                    new_user: document.getElementById('notify-new-user').checked,
+                    password_reset: document.getElementById('notify-password-reset').checked,
+                    admin_new_user: document.getElementById('notify-admin-new-user').checked,
+                    system_updates: document.getElementById('notify-system-updates').checked
+                }
+            };
+
+            console.log('Saving email settings:', formData);
+            UIComponents.showNotification('Email settings saved successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

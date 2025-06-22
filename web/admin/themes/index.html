@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install Theme - CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <div class="flex">
+            <div class="w-64 bg-gray-800 min-h-screen">
+                <div class="p-4">
+                    <h1 class="text-white text-lg font-semibold">CMS Admin</h1>
+                </div>
+                <nav class="mt-8 space-y-1">
+                    <a href="../index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Dashboard
+                    </a>
+                    <a href="index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Back to Themes
+                    </a>
+                </nav>
+            </div>
+
+            <div class="flex-1">
+                <div class="p-8">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="md:flex md:items-center md:justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                                    Install Theme
+                                </h2>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Install themes from various sources to customize your site appearance.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Installation Methods -->
+                        <div class="mt-8">
+                            <div class="border-b border-gray-200">
+                                <nav class="-mb-px flex space-x-8">
+                                    <button onclick="switchInstallTab('upload')" class="install-tab active border-primary-500 text-primary-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                        Upload Theme
+                                    </button>
+                                    <button onclick="switchInstallTab('marketplace')" class="install-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                        Theme Marketplace
+                                    </button>
+                                    <button onclick="switchInstallTab('url')" class="install-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                        Install from URL
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- Upload Theme Tab -->
+                            <div id="upload-tab" class="install-content mt-8">
+                                <div class="bg-white shadow rounded-lg">
+                                    <div class="px-4 py-5 sm:p-6">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Upload Theme Package</h3>
+                                        <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                            <p>Upload a theme package (.zip file) from your computer.</p>
+                                        </div>
+                                        
+                                        <form id="themeUploadForm" class="mt-6 space-y-6" enctype="multipart/form-data">
+                                            <!-- File Upload Area -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Theme Package</label>
+                                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors" id="themeDropZone">
+                                                    <div class="space-y-1 text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="flex text-sm text-gray-600">
+                                                            <label for="themeFile" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                                                <span>Upload a theme</span>
+                                                                <input id="themeFile" name="theme" type="file" accept=".zip" class="sr-only" required>
+                                                            </label>
+                                                            <p class="pl-1">or drag and drop</p>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500">
+                                                            ZIP files up to 100MB
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div id="themeFileInfo" class="hidden mt-2 text-sm text-gray-600"></div>
+                                            </div>
+
+                                            <!-- Theme Information -->
+                                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                                <div>
+                                                    <label for="themeName" class="block text-sm font-medium text-gray-700">Theme Name</label>
+                                                    <input type="text" name="name" id="themeName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Enter theme name">
+                                                </div>
+
+                                                <div>
+                                                    <label for="themeVersion" class="block text-sm font-medium text-gray-700">Version</label>
+                                                    <input type="text" name="version" id="themeVersion" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="1.0.0">
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label for="themeDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                                <textarea id="themeDescription" name="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Describe this theme..."></textarea>
+                                            </div>
+
+                                            <div>
+                                                <label for="themeAuthor" class="block text-sm font-medium text-gray-700">Author</label>
+                                                <input type="text" name="author" id="themeAuthor" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Theme author">
+                                            </div>
+
+                                            <!-- Progress Bar -->
+                                            <div id="themeUploadProgress" class="hidden">
+                                                <div class="flex items-center justify-between text-sm">
+                                                    <span class="text-gray-700">Uploading...</span>
+                                                    <span id="themeProgressPercent" class="text-gray-500">0%</span>
+                                                </div>
+                                                <div class="mt-1 bg-gray-200 rounded-full h-2">
+                                                    <div id="themeProgressBar" class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Upload Button -->
+                                            <div class="flex justify-end space-x-3">
+                                                <button type="button" onclick="window.location.href='index.html'" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                                    Cancel
+                                                </button>
+                                                <button type="submit" id="themeUploadBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                                    </svg>
+                                                    <span id="themeUploadText">Install Theme</span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Marketplace Tab -->
+                            <div id="marketplace-tab" class="install-content hidden mt-8">
+                                <div class="bg-white shadow rounded-lg">
+                                    <div class="px-4 py-5 sm:p-6">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Theme Marketplace</h3>
+                                        <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                            <p>Browse and install themes from our marketplace.</p>
+                                        </div>
+
+                                        <!-- Search and Filter -->
+                                        <div class="mt-6 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                                            <div class="flex-1">
+                                                <label for="marketplace-search" class="sr-only">Search themes</label>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <input id="marketplace-search" name="search" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Search themes..." type="search">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <select id="marketplace-category" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                                                    <option value="">All Categories</option>
+                                                    <option value="blog">Blog</option>
+                                                    <option value="business">Business</option>
+                                                    <option value="portfolio">Portfolio</option>
+                                                    <option value="ecommerce">E-commerce</option>
+                                                    <option value="minimal">Minimal</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Theme Grid -->
+                                        <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" id="marketplace-themes">
+                                            <!-- Sample themes -->
+                                            <div class="marketplace-theme-card bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-primary-300 cursor-pointer transition-colors">
+                                                <div class="aspect-w-16 aspect-h-9 mb-4">
+                                                    <div class="w-full h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded"></div>
+                                                </div>
+                                                <h4 class="font-medium text-gray-900">Modern Portfolio</h4>
+                                                <p class="text-sm text-gray-500 mt-1">A clean, modern theme perfect for showcasing your work.</p>
+                                                <div class="flex items-center justify-between mt-4">
+                                                    <span class="text-sm text-gray-600">Free</span>
+                                                    <button onclick="installMarketplaceTheme('modern-portfolio')" class="text-primary-600 hover:text-primary-700 text-sm font-medium">Install</button>
+                                                </div>
+                                            </div>
+
+                                            <div class="marketplace-theme-card bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-primary-300 cursor-pointer transition-colors">
+                                                <div class="aspect-w-16 aspect-h-9 mb-4">
+                                                    <div class="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 rounded"></div>
+                                                </div>
+                                                <h4 class="font-medium text-gray-900">Business Pro</h4>
+                                                <p class="text-sm text-gray-500 mt-1">Professional theme for business websites.</p>
+                                                <div class="flex items-center justify-between mt-4">
+                                                    <span class="text-sm text-gray-600">$29</span>
+                                                    <button onclick="installMarketplaceTheme('business-pro')" class="text-primary-600 hover:text-primary-700 text-sm font-medium">Install</button>
+                                                </div>
+                                            </div>
+
+                                            <div class="marketplace-theme-card bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-primary-300 cursor-pointer transition-colors">
+                                                <div class="aspect-w-16 aspect-h-9 mb-4">
+                                                    <div class="w-full h-32 bg-gradient-to-br from-pink-400 to-red-500 rounded"></div>
+                                                </div>
+                                                <h4 class="font-medium text-gray-900">Creative Blog</h4>
+                                                <p class="text-sm text-gray-500 mt-1">Stylish theme for creative blogs and magazines.</p>
+                                                <div class="flex items-center justify-between mt-4">
+                                                    <span class="text-sm text-gray-600">$19</span>
+                                                    <button onclick="installMarketplaceTheme('creative-blog')" class="text-primary-600 hover:text-primary-700 text-sm font-medium">Install</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- URL Tab -->
+                            <div id="url-tab" class="install-content hidden mt-8">
+                                <div class="bg-white shadow rounded-lg">
+                                    <div class="px-4 py-5 sm:p-6">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Install from URL</h3>
+                                        <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                            <p>Install a theme directly from a URL (GitHub, GitLab, etc.).</p>
+                                        </div>
+                                        
+                                        <form id="urlInstallForm" class="mt-6 space-y-6">
+                                            <div>
+                                                <label for="theme-url" class="block text-sm font-medium text-gray-700">Theme URL</label>
+                                                <input type="url" name="url" id="theme-url" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="https://github.com/user/theme-name/archive/main.zip">
+                                                <p class="mt-1 text-xs text-gray-500">Supported: GitHub releases, GitLab archives, direct ZIP downloads</p>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                                <div>
+                                                    <label for="url-theme-name" class="block text-sm font-medium text-gray-700">Theme Name</label>
+                                                    <input type="text" name="name" id="url-theme-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Auto-detected from URL">
+                                                </div>
+
+                                                <div>
+                                                    <label for="url-theme-version" class="block text-sm font-medium text-gray-700">Version</label>
+                                                    <input type="text" name="version" id="url-theme-version" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="1.0.0">
+                                                </div>
+                                            </div>
+
+                                            <div class="flex justify-end space-x-3">
+                                                <button type="button" onclick="window.location.href='index.html'" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                                    Cancel
+                                                </button>
+                                                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                                                    </svg>
+                                                    Install from URL
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Installation Tips -->
+                        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-blue-800">Theme Installation Tips</h3>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>Always backup your current theme before installing a new one</li>
+                                            <li>Test new themes on a staging environment first</li>
+                                            <li>Check theme compatibility with your CMS version</li>
+                                            <li>Review theme documentation for setup instructions</li>
+                                            <li>Some themes may require additional plugins to work properly</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/components.js"></script>
+    <script>
+        class ThemeInstaller {
+            constructor() {
+                this.apiBase = '/api/v1';
+                this.token = localStorage.getItem('authToken');
+                this.setupEventListeners();
+                this.setupDragDrop();
+            }
+
+            setupEventListeners() {
+                // Upload form
+                const uploadForm = document.getElementById('themeUploadForm');
+                if (uploadForm) {
+                    uploadForm.addEventListener('submit', (e) => this.handleUpload(e));
+                }
+
+                // URL form
+                const urlForm = document.getElementById('urlInstallForm');
+                if (urlForm) {
+                    urlForm.addEventListener('submit', (e) => this.handleUrlInstall(e));
+                }
+
+                // File input
+                const fileInput = document.getElementById('themeFile');
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+                }
+
+                // URL input auto-detection
+                const urlInput = document.getElementById('theme-url');
+                if (urlInput) {
+                    urlInput.addEventListener('input', UIComponents.debounce((e) => {
+                        this.autoDetectThemeName(e.target.value);
+                    }, 500));
+                }
+            }
+
+            setupDragDrop() {
+                const dropZone = document.getElementById('themeDropZone');
+                if (!dropZone) return;
+
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-primary-500', 'bg-primary-50');
+                });
+
+                dropZone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        document.getElementById('themeFile').files = files;
+                        this.handleFileSelect({ target: { files } });
+                    }
+                });
+            }
+
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                const fileInfo = document.getElementById('themeFileInfo');
+
+                if (file) {
+                    if (!file.name.endsWith('.zip')) {
+                        UIComponents.showNotification('Please select a ZIP file', 'error');
+                        event.target.value = '';
+                        fileInfo.classList.add('hidden');
+                        return;
+                    }
+
+                    if (file.size > 100 * 1024 * 1024) {
+                        UIComponents.showNotification('File size must be less than 100MB', 'error');
+                        event.target.value = '';
+                        fileInfo.classList.add('hidden');
+                        return;
+                    }
+
+                    fileInfo.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span><strong>${file.name}</strong> (${UIComponents.formatBytes(file.size)})</span>
+                        </div>
+                    `;
+                    fileInfo.classList.remove('hidden');
+
+                    // Auto-fill theme name from filename
+                    const themeName = file.name.replace('.zip', '').replace(/[-_]/g, ' ');
+                    document.getElementById('themeName').value = themeName;
+                }
+            }
+
+            autoDetectThemeName(url) {
+                if (!url) return;
+
+                try {
+                    const urlObj = new URL(url);
+                    const pathParts = urlObj.pathname.split('/');
+                    let themeName = '';
+
+                    if (urlObj.hostname.includes('github.com')) {
+                        // GitHub URL: extract repo name
+                        themeName = pathParts[2] || '';
+                    } else if (urlObj.hostname.includes('gitlab.com')) {
+                        // GitLab URL: extract repo name
+                        themeName = pathParts[2] || '';
+                    } else {
+                        // Generic URL: extract filename
+                        const filename = pathParts[pathParts.length - 1];
+                        themeName = filename.replace(/\.(zip|tar\.gz|tar)$/, '');
+                    }
+
+                    if (themeName) {
+                        document.getElementById('url-theme-name').value = themeName.replace(/[-_]/g, ' ');
+                    }
+                } catch (error) {
+                    // Invalid URL, ignore
+                }
+            }
+
+            async handleUpload(event) {
+                event.preventDefault();
+
+                const formData = new FormData(event.target);
+                const file = formData.get('theme');
+
+                if (!file || file.size === 0) {
+                    UIComponents.showNotification('Please select a theme file', 'error');
+                    return;
+                }
+
+                this.setUploading(true);
+
+                try {
+                    const xhr = new XMLHttpRequest();
+                    
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100);
+                            this.updateProgress(percentComplete);
+                        }
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            UIComponents.showNotification('Theme installed successfully!', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        } else {
+                            const error = JSON.parse(xhr.responseText);
+                            throw new Error(error.error || 'Installation failed');
+                        }
+                        this.setUploading(false);
+                    });
+
+                    xhr.addEventListener('error', () => {
+                        throw new Error('Network error occurred');
+                    });
+
+                    xhr.open('POST', `${this.apiBase}/themes/install`);
+                    xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
+                    xhr.send(formData);
+
+                } catch (error) {
+                    UIComponents.showNotification(error.message, 'error');
+                    this.setUploading(false);
+                }
+            }
+
+            async handleUrlInstall(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(event.target);
+                const installData = {
+                    url: formData.get('url'),
+                    name: formData.get('name'),
+                    version: formData.get('version'),
+                    source: 'url'
+                };
+
+                try {
+                    const response = await fetch(`${this.apiBase}/themes/install`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(installData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        UIComponents.showNotification('Theme installed successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Installation failed');
+                    }
+                } catch (error) {
+                    UIComponents.showNotification(error.message, 'error');
+                }
+            }
+
+            async installMarketplaceTheme(themeId) {
+                try {
+                    const response = await fetch(`${this.apiBase}/themes/marketplace/${themeId}/install`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        UIComponents.showNotification('Theme installed successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Installation failed');
+                    }
+                } catch (error) {
+                    UIComponents.showNotification(error.message, 'error');
+                }
+            }
+
+            setUploading(uploading) {
+                const uploadBtn = document.getElementById('themeUploadBtn');
+                const uploadText = document.getElementById('themeUploadText');
+                const progressContainer = document.getElementById('themeUploadProgress');
+
+                if (uploading) {
+                    uploadBtn.disabled = true;
+                    uploadText.textContent = 'Installing...';
+                    progressContainer.classList.remove('hidden');
+                } else {
+                    uploadBtn.disabled = false;
+                    uploadText.textContent = 'Install Theme';
+                    progressContainer.classList.add('hidden');
+                    this.updateProgress(0);
+                }
+            }
+
+            updateProgress(percent) {
+                const progressBar = document.getElementById('themeProgressBar');
+                const progressPercent = document.getElementById('themeProgressPercent');
+
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${percent}%`;
+            }
+        }
+
+        // Tab switching function
+        function switchInstallTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.install-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.install-tab').forEach(tab => {
+                tab.classList.remove('active', 'border-primary-500', 'text-primary-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected content
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+
+            // Activate selected tab
+            event.target.classList.add('active', 'border-primary-500', 'text-primary-600');
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+        }
+
+        function installMarketplaceTheme(themeId) {
+            window.themeInstaller.installMarketplaceTheme(themeId);
+        }
+
+        // Initialize installer when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.themeInstaller = new ThemeInstaller();
+        });
+    </script>
+</body>
+</html>

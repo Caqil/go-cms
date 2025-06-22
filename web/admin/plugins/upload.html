@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Plugin - CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Simplified layout for brevity -->
+        <div class="flex">
+            <div class="w-64 bg-gray-800 min-h-screen">
+                <div class="p-4">
+                    <h1 class="text-white text-lg font-semibold">CMS Admin</h1>
+                </div>
+                <nav class="mt-8">
+                    <a href="../index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Back to Dashboard
+                    </a>
+                    <a href="index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Back to Plugins
+                    </a>
+                </nav>
+            </div>
+
+            <div class="flex-1">
+                <div class="p-8">
+                    <div class="max-w-3xl mx-auto">
+                        <div class="bg-white shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                    Upload Plugin
+                                </h3>
+                                <div class="mt-2 max-w-xl text-sm text-gray-500">
+                                    <p>Upload a plugin package (.so file) to add new functionality to your CMS.</p>
+                                </div>
+                                
+                                <form id="pluginUploadForm" class="mt-6 space-y-6" enctype="multipart/form-data">
+                                    <!-- File Upload Area -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Plugin File</label>
+                                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors" id="dropZone">
+                                            <div class="space-y-1 text-center">
+                                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                                <div class="flex text-sm text-gray-600">
+                                                    <label for="pluginFile" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                                        <span>Upload a file</span>
+                                                        <input id="pluginFile" name="plugin" type="file" accept=".so" class="sr-only" required>
+                                                    </label>
+                                                    <p class="pl-1">or drag and drop</p>
+                                                </div>
+                                                <p class="text-xs text-gray-500">
+                                                    SO files only, up to 50MB
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div id="fileInfo" class="hidden mt-2 text-sm text-gray-600"></div>
+                                    </div>
+
+                                    <!-- Plugin Information -->
+                                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                        <div>
+                                            <label for="pluginName" class="block text-sm font-medium text-gray-700">Plugin Name</label>
+                                            <input type="text" name="name" id="pluginName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Enter plugin name">
+                                        </div>
+
+                                        <div>
+                                            <label for="pluginVersion" class="block text-sm font-medium text-gray-700">Version</label>
+                                            <input type="text" name="version" id="pluginVersion" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="1.0.0">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="pluginDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                        <textarea id="pluginDescription" name="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Describe what this plugin does..."></textarea>
+                                    </div>
+
+                                    <div>
+                                        <label for="pluginAuthor" class="block text-sm font-medium text-gray-700">Author</label>
+                                        <input type="text" name="author" id="pluginAuthor" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Plugin author">
+                                    </div>
+
+                                    <!-- Progress Bar -->
+                                    <div id="uploadProgress" class="hidden">
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span class="text-gray-700">Uploading...</span>
+                                            <span id="progressPercent" class="text-gray-500">0%</span>
+                                        </div>
+                                        <div class="mt-1 bg-gray-200 rounded-full h-2">
+                                            <div id="progressBar" class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Button -->
+                                    <div class="flex justify-end space-x-3">
+                                        <button type="button" onclick="window.location.href='index.html'" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" id="uploadBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                            </svg>
+                                            <span id="uploadText">Upload Plugin</span>
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Alert Messages -->
+                                <div id="alertContainer" class="mt-6"></div>
+                            </div>
+                        </div>
+
+                        <!-- Help Section -->
+                        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-blue-800">
+                                        Plugin Upload Guidelines
+                                    </h3>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>Only .so (shared object) files are supported</li>
+                                            <li>Maximum file size is 50MB</li>
+                                            <li>Plugins must be compiled with the same Go version as the server</li>
+                                            <li>Ensure your plugin exports a "NewPlugin" function</li>
+                                            <li>Test plugins in a development environment first</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/components.js"></script>
+    <script>
+        class PluginUploader {
+            constructor() {
+                this.apiBase = '/api/v1';
+                this.token = localStorage.getItem('authToken');
+                this.setupEventListeners();
+                this.setupDragDrop();
+            }
+
+            setupEventListeners() {
+                const form = document.getElementById('pluginUploadForm');
+                const fileInput = document.getElementById('pluginFile');
+
+                form.addEventListener('submit', (e) => this.handleUpload(e));
+                fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+            }
+
+            setupDragDrop() {
+                const dropZone = document.getElementById('dropZone');
+
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-primary-500', 'bg-primary-50');
+                });
+
+                dropZone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        document.getElementById('pluginFile').files = files;
+                        this.handleFileSelect({ target: { files } });
+                    }
+                });
+            }
+
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                const fileInfo = document.getElementById('fileInfo');
+
+                if (file) {
+                    if (!file.name.endsWith('.so')) {
+                        this.showAlert('Please select a .so file', 'error');
+                        event.target.value = '';
+                        fileInfo.classList.add('hidden');
+                        return;
+                    }
+
+                    if (file.size > 50 * 1024 * 1024) {
+                        this.showAlert('File size must be less than 50MB', 'error');
+                        event.target.value = '';
+                        fileInfo.classList.add('hidden');
+                        return;
+                    }
+
+                    fileInfo.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span><strong>${file.name}</strong> (${UIComponents.formatBytes(file.size)})</span>
+                        </div>
+                    `;
+                    fileInfo.classList.remove('hidden');
+
+                    // Auto-fill plugin name from filename
+                    const pluginName = file.name.replace('.so', '').replace(/[-_]/g, ' ');
+                    document.getElementById('pluginName').value = pluginName;
+                }
+            }
+
+            async handleUpload(event) {
+                event.preventDefault();
+
+                const formData = new FormData(event.target);
+                const file = formData.get('plugin');
+
+                if (!file || file.size === 0) {
+                    this.showAlert('Please select a plugin file', 'error');
+                    return;
+                }
+
+                this.setUploading(true);
+
+                try {
+                    const xhr = new XMLHttpRequest();
+                    
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100);
+                            this.updateProgress(percentComplete);
+                        }
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            this.showAlert('Plugin uploaded successfully!', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        } else {
+                            const error = JSON.parse(xhr.responseText);
+                            throw new Error(error.error || 'Upload failed');
+                        }
+                        this.setUploading(false);
+                    });
+
+                    xhr.addEventListener('error', () => {
+                        throw new Error('Network error occurred');
+                    });
+
+                    xhr.open('POST', `${this.apiBase}/admin/plugins/upload`);
+                    xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
+                    xhr.send(formData);
+
+                } catch (error) {
+                    this.showAlert(error.message, 'error');
+                    this.setUploading(false);
+                }
+            }
+
+            setUploading(uploading) {
+                const uploadBtn = document.getElementById('uploadBtn');
+                const uploadText = document.getElementById('uploadText');
+                const progressContainer = document.getElementById('uploadProgress');
+
+                if (uploading) {
+                    uploadBtn.disabled = true;
+                    uploadText.textContent = 'Uploading...';
+                    progressContainer.classList.remove('hidden');
+                } else {
+                    uploadBtn.disabled = false;
+                    uploadText.textContent = 'Upload Plugin';
+                    progressContainer.classList.add('hidden');
+                    this.updateProgress(0);
+                }
+            }
+
+            updateProgress(percent) {
+                const progressBar = document.getElementById('progressBar');
+                const progressPercent = document.getElementById('progressPercent');
+
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${percent}%`;
+            }
+
+            showAlert(message, type) {
+                const container = document.getElementById('alertContainer');
+                container.innerHTML = UIComponents.createAlert(message, type);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new PluginUploader();
+        });
+    </script>
+</body>
+</html>

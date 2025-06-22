@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Customization - CMS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <div class="flex">
+            <div class="w-64 bg-gray-800 min-h-screen">
+                <div class="p-4">
+                    <h1 class="text-white text-lg font-semibold">CMS Admin</h1>
+                </div>
+                <nav class="mt-8 space-y-1">
+                    <a href="../index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Dashboard
+                    </a>
+                    <a href="index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
+                        ← Back to Themes
+                    </a>
+                </nav>
+            </div>
+
+            <div class="flex-1">
+                <div class="p-8">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="md:flex md:items-center md:justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                                    Theme Customization
+                                </h2>
+                                <p class="mt-1 text-sm text-gray-500" id="theme-name">
+                                    Customizing: Modern Theme
+                                </p>
+                            </div>
+                            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+                                <button type="button" onclick="previewChanges()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    Preview
+                                </button>
+                                <button type="button" onclick="saveCustomization()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                    </svg>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            <!-- Customization Panel -->
+                            <div class="lg:col-span-1">
+                                <div class="bg-white shadow rounded-lg overflow-hidden">
+                                    <!-- Tab Navigation -->
+                                    <div class="border-b border-gray-200">
+                                        <nav class="-mb-px flex">
+                                            <button onclick="switchCustomizationTab('colors')" class="customization-tab active flex-1 py-3 px-4 text-sm font-medium text-center border-b-2 border-primary-500 text-primary-600">
+                                                Colors
+                                            </button>
+                                            <button onclick="switchCustomizationTab('typography')" class="customization-tab flex-1 py-3 px-4 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                                                Typography
+                                            </button>
+                                            <button onclick="switchCustomizationTab('layout')" class="customization-tab flex-1 py-3 px-4 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                                                Layout
+                                            </button>
+                                        </nav>
+                                    </div>
+
+                                    <!-- Tab Content -->
+                                    <div class="p-4">
+                                        <!-- Colors Tab -->
+                                        <div id="colors-tab" class="customization-content">
+                                            <h4 class="text-sm font-medium text-gray-900 mb-4">Color Palette</h4>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label for="primary-color" class="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
+                                                    <div class="flex items-center space-x-3">
+                                                        <input type="color" id="primary-color" value="#3b82f6" class="h-10 w-16 rounded border border-gray-300 cursor-pointer">
+                                                        <input type="text" value="#3b82f6" class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for="secondary-color" class="block text-sm font-medium text-gray-700 mb-2">Secondary Color</label>
+                                                    <div class="flex items-center space-x-3">
+                                                        <input type="color" id="secondary-color" value="#10b981" class="h-10 w-16 rounded border border-gray-300 cursor-pointer">
+                                                        <input type="text" value="#10b981" class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for="accent-color" class="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+                                                    <div class="flex items-center space-x-3">
+                                                        <input type="color" id="accent-color" value="#f59e0b" class="h-10 w-16 rounded border border-gray-300 cursor-pointer">
+                                                        <input type="text" value="#f59e0b" class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for="background-color" class="block text-sm font-medium text-gray-700 mb-2">Background</label>
+                                                    <div class="flex items-center space-x-3">
+                                                        <input type="color" id="background-color" value="#ffffff" class="h-10 w-16 rounded border border-gray-300 cursor-pointer">
+                                                        <input type="text" value="#ffffff" class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for="text-color" class="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
+                                                    <div class="flex items-center space-x-3">
+                                                        <input type="color" id="text-color" value="#1f2937" class="h-10 w-16 rounded border border-gray-300 cursor-pointer">
+                                                        <input type="text" value="#1f2937" class="flex-1 text-sm border border-gray-300 rounded px-2 py-1">
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" onclick="resetColors()" class="w-full text-sm text-gray-600 hover:text-gray-800 py-2 border border-gray-300 rounded hover:bg-gray-50">
+                                                    Reset to Defaults
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Typography Tab -->
+                                        <div id="typography-tab" class="customization-content hidden">
+                                            <h4 class="text-sm font-medium text-gray-900 mb-4">Typography</h4>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label for="primary-font" class="block text-sm font-medium text-gray-700 mb-2">Primary Font</label>
+                                                    <select id="primary-font" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                        <option value="Inter">Inter</option>
+                                                        <option value="Roboto">Roboto</option>
+                                                        <option value="Open Sans">Open Sans</option>
+                                                        <option value="Lato">Lato</option>
+                                                        <option value="Poppins">Poppins</option>
+                                                        <option value="Nunito">Nunito</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <label for="heading-font" class="block text-sm font-medium text-gray-700 mb-2">Heading Font</label>
+                                                    <select id="heading-font" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                        <option value="Inter">Inter</option>
+                                                        <option value="Playfair Display">Playfair Display</option>
+                                                        <option value="Merriweather">Merriweather</option>
+                                                        <option value="Roboto Slab">Roboto Slab</option>
+                                                        <option value="Source Serif Pro">Source Serif Pro</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <label for="font-size" class="block text-sm font-medium text-gray-700 mb-2">Base Font Size</label>
+                                                    <div class="flex items-center space-x-2">
+                                                        <input type="range" id="font-size" min="12" max="20" value="16" class="flex-1">
+                                                        <span class="text-sm text-gray-600 w-8" id="font-size-value">16px</span>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for="line-height" class="block text-sm font-medium text-gray-700 mb-2">Line Height</label>
+                                                    <div class="flex items-center space-x-2">
+                                                        <input type="range" id="line-height" min="1.2" max="2.0" step="0.1" value="1.6" class="flex-1">
+                                                        <span class="text-sm text-gray-600 w-8" id="line-height-value">1.6</span>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for="letter-spacing" class="block text-sm font-medium text-gray-700 mb-2">Letter Spacing</label>
+                                                    <div class="flex items-center space-x-2">
+                                                        <input type="range" id="letter-spacing" min="-0.1" max="0.1" step="0.01" value="0" class="flex-1">
+                                                        <span class="text-sm text-gray-600 w-12" id="letter-spacing-value">0em</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Layout Tab -->
+                                        <div id="layout-tab" class="customization-content hidden">
+                                            <h4 class="text-sm font-medium text-gray-900 mb-4">Layout Settings</h4>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label for="container-width" class="block text-sm font-medium text-gray-700 mb-2">Container Width</label>
+                                                    <select id="container-width" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                        <option value="1200px">1200px (Default)</option>
+                                                        <option value="1140px">1140px (Bootstrap)</option>
+                                                        <option value="1024px">1024px (Compact)</option>
+                                                        <option value="100%">100% (Full Width)</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <label for="sidebar-position" class="block text-sm font-medium text-gray-700 mb-2">Sidebar Position</label>
+                                                    <select id="sidebar-position" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                        <option value="right">Right</option>
+                                                        <option value="left">Left</option>
+                                                        <option value="none">No Sidebar</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <label for="header-style" class="block text-sm font-medium text-gray-700 mb-2">Header Style</label>
+                                                    <select id="header-style" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                        <option value="default">Default</option>
+                                                        <option value="centered">Centered</option>
+                                                        <option value="minimal">Minimal</option>
+                                                        <option value="sticky">Sticky</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <label for="footer-style" class="block text-sm font-medium text-gray-700 mb-2">Footer Style</label>
+                                                    <select id="footer-style" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                        <option value="default">Default</option>
+                                                        <option value="minimal">Minimal</option>
+                                                        <option value="columns">Multi-Column</option>
+                                                        <option value="centered">Centered</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="space-y-3">
+                                                    <div class="flex items-center">
+                                                        <input id="enable-dark-mode" name="enable-dark-mode" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                                        <label for="enable-dark-mode" class="ml-2 block text-sm text-gray-700">Enable Dark Mode</label>
+                                                    </div>
+
+                                                    <div class="flex items-center">
+                                                        <input id="enable-animations" name="enable-animations" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                                        <label for="enable-animations" class="ml-2 block text-sm text-gray-700">Enable Animations</label>
+                                                    </div>
+
+                                                    <div class="flex items-center">
+                                                        <input id="rounded-corners" name="rounded-corners" type="checkbox" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                                        <label for="rounded-corners" class="ml-2 block text-sm text-gray-700">Rounded Corners</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Advanced Options -->
+                                    <div class="border-t border-gray-200 p-4">
+                                        <button type="button" onclick="showAdvancedOptions()" class="w-full text-left text-sm text-primary-600 hover:text-primary-700 font-medium">
+                                            Advanced Options →
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preview Area -->
+                            <div class="lg:col-span-3">
+                                <div class="bg-white shadow rounded-lg overflow-hidden">
+                                    <div class="border-b border-gray-200 px-4 py-3">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-sm font-medium text-gray-900">Live Preview</h3>
+                                            <div class="flex items-center space-x-2">
+                                                <button onclick="setPreviewDevice('desktop')" class="preview-device active p-2 rounded text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button onclick="setPreviewDevice('tablet')" class="preview-device p-2 rounded text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button onclick="setPreviewDevice('mobile')" class="preview-device p-2 rounded text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Preview Content -->
+                                    <div class="p-4 bg-gray-50 min-h-96">
+                                        <div id="preview-frame" class="bg-white rounded shadow-sm mx-auto transition-all duration-300" style="width: 100%; height: 600px;">
+                                            <iframe src="about:blank" class="w-full h-full rounded" id="preview-iframe"></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Options Modal -->
+    <div class="fixed inset-0 z-50 overflow-y-auto hidden" id="advanced-modal">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                            Advanced Customization
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label for="custom-css" class="block text-sm font-medium text-gray-700 mb-2">Custom CSS</label>
+                                <textarea id="custom-css" rows="8" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm font-mono text-xs" placeholder="/* Add your custom CSS here */"></textarea>
+                            </div>
+
+                            <div>
+                                <label for="custom-js" class="block text-sm font-medium text-gray-700 mb-2">Custom JavaScript</label>
+                                <textarea id="custom-js" rows="6" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm font-mono text-xs" placeholder="// Add your custom JavaScript here"></textarea>
+                            </div>
+
+                            <div>
+                                <label for="header-code" class="block text-sm font-medium text-gray-700 mb-2">Header Code</label>
+                                <textarea id="header-code" rows="4" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm font-mono text-xs" placeholder="<!-- Code to be inserted in <head> -->"></textarea>
+                            </div>
+
+                            <div>
+                                <label for="footer-code" class="block text-sm font-medium text-gray-700 mb-2">Footer Code</label>
+                                <textarea id="footer-code" rows="4" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm font-mono text-xs" placeholder="<!-- Code to be inserted before </body> -->"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="saveAdvancedOptions()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Save
+                    </button>
+                    <button type="button" onclick="closeAdvancedOptions()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/themes.js"></script>
+    <script>
+        class ThemeCustomizer {
+            constructor() {
+                this.currentTheme = new URLSearchParams(window.location.search).get('theme') || 'default';
+                this.customization = {};
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadCurrentCustomization();
+                this.updatePreview();
+            }
+
+            setupEventListeners() {
+                // Color inputs
+                document.querySelectorAll('input[type="color"]').forEach(input => {
+                    input.addEventListener('change', () => this.updatePreview());
+                });
+
+                // Range inputs
+                document.querySelectorAll('input[type="range"]').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        const valueSpan = document.getElementById(e.target.id + '-value');
+                        if (valueSpan) {
+                            valueSpan.textContent = e.target.value + (e.target.id.includes('font-size') ? 'px' : e.target.id.includes('line-height') ? '' : 'em');
+                        }
+                        this.updatePreview();
+                    });
+                });
+
+                // Select inputs
+                document.querySelectorAll('select').forEach(select => {
+                    select.addEventListener('change', () => this.updatePreview());
+                });
+
+                // Checkbox inputs
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', () => this.updatePreview());
+                });
+            }
+
+            async loadCurrentCustomization() {
+                try {
+                    // Load current theme customization from API
+                    const response = await fetch(`/api/v1/themes/${this.currentTheme}/customization`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.customization = data.customization || {};
+                        this.populateFormFields();
+                    }
+                } catch (error) {
+                    console.error('Failed to load customization:', error);
+                }
+            }
+
+            populateFormFields() {
+                // Populate color fields
+                if (this.customization.colors) {
+                    Object.entries(this.customization.colors).forEach(([key, value]) => {
+                        const input = document.getElementById(key.replace('_', '-') + '-color');
+                        if (input) input.value = value;
+                    });
+                }
+
+                // Populate typography fields
+                if (this.customization.typography) {
+                    Object.entries(this.customization.typography).forEach(([key, value]) => {
+                        const input = document.getElementById(key.replace('_', '-'));
+                        if (input) input.value = value;
+                    });
+                }
+
+                // Populate layout fields
+                if (this.customization.layout) {
+                    Object.entries(this.customization.layout).forEach(([key, value]) => {
+                        const input = document.getElementById(key.replace('_', '-'));
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = value;
+                            } else {
+                                input.value = value;
+                            }
+                        }
+                    });
+                }
+            }
+
+            updatePreview() {
+                const iframe = document.getElementById('preview-iframe');
+                const customization = this.gatherCustomization();
+
+                // Generate preview CSS
+                const css = this.generateCSS(customization);
+                
+                // Update iframe content
+                const previewHTML = this.generatePreviewHTML(css);
+                iframe.srcdoc = previewHTML;
+            }
+
+            gatherCustomization() {
+                return {
+                    colors: {
+                        primary: document.getElementById('primary-color').value,
+                        secondary: document.getElementById('secondary-color').value,
+                        accent: document.getElementById('accent-color').value,
+                        background: document.getElementById('background-color').value,
+                        text: document.getElementById('text-color').value
+                    },
+                    typography: {
+                        primary_font: document.getElementById('primary-font').value,
+                        heading_font: document.getElementById('heading-font').value,
+                        font_size: document.getElementById('font-size').value + 'px',
+                        line_height: document.getElementById('line-height').value,
+                        letter_spacing: document.getElementById('letter-spacing').value + 'em'
+                    },
+                    layout: {
+                        container_width: document.getElementById('container-width').value,
+                        sidebar_position: document.getElementById('sidebar-position').value,
+                        header_style: document.getElementById('header-style').value,
+                        footer_style: document.getElementById('footer-style').value,
+                        dark_mode: document.getElementById('enable-dark-mode').checked,
+                        animations: document.getElementById('enable-animations').checked,
+                        rounded_corners: document.getElementById('rounded-corners').checked
+                    }
+                };
+            }
+
+            generateCSS(customization) {
+                return `
+                    :root {
+                        --primary-color: ${customization.colors.primary};
+                        --secondary-color: ${customization.colors.secondary};
+                        --accent-color: ${customization.colors.accent};
+                        --background-color: ${customization.colors.background};
+                        --text-color: ${customization.colors.text};
+                        --primary-font: '${customization.typography.primary_font}', sans-serif;
+                        --heading-font: '${customization.typography.heading_font}', serif;
+                        --font-size: ${customization.typography.font_size};
+                        --line-height: ${customization.typography.line_height};
+                        --letter-spacing: ${customization.typography.letter_spacing};
+                    }
+
+                    body {
+                        font-family: var(--primary-font);
+                        font-size: var(--font-size);
+                        line-height: var(--line-height);
+                        letter-spacing: var(--letter-spacing);
+                        color: var(--text-color);
+                        background-color: var(--background-color);
+                        margin: 0;
+                        padding: 20px;
+                    }
+
+                    h1, h2, h3, h4, h5, h6 {
+                        font-family: var(--heading-font);
+                        color: var(--primary-color);
+                    }
+
+                    .container {
+                        max-width: ${customization.layout.container_width};
+                        margin: 0 auto;
+                    }
+
+                    .btn-primary {
+                        background-color: var(--primary-color);
+                        color: white;
+                        padding: 10px 20px;
+                        border: none;
+                        border-radius: ${customization.layout.rounded_corners ? '6px' : '0'};
+                        cursor: pointer;
+                        transition: ${customization.layout.animations ? 'all 0.3s ease' : 'none'};
+                    }
+
+                    .btn-primary:hover {
+                        opacity: 0.9;
+                        transform: ${customization.layout.animations ? 'translateY(-1px)' : 'none'};
+                    }
+
+                    .card {
+                        background: white;
+                        padding: 20px;
+                        margin: 20px 0;
+                        border-radius: ${customization.layout.rounded_corners ? '8px' : '0'};
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }
+
+                    .accent {
+                        color: var(--accent-color);
+                    }
+
+                    .secondary {
+                        color: var(--secondary-color);
+                    }
+                `;
+            }
+
+            generatePreviewHTML(css) {
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>${css}</style>
+                        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;600&family=Roboto:wght@400;500&family=Open+Sans:wght@400;600&family=Lato:wght@400;700&family=Poppins:wght@400;600&family=Nunito:wght@400;600&family=Merriweather:wght@400;700&family=Roboto+Slab:wght@400;600&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+                    </head>
+                    <body>
+                        <div class="container">
+                            <header style="text-align: center; margin-bottom: 40px;">
+                                <h1>Your Website Title</h1>
+                                <p>Welcome to your beautifully customized website</p>
+                            </header>
+
+                            <nav style="margin-bottom: 30px;">
+                                <button class="btn-primary" style="margin-right: 10px;">Home</button>
+                                <button class="btn-primary" style="margin-right: 10px;">About</button>
+                                <button class="btn-primary" style="margin-right: 10px;">Services</button>
+                                <button class="btn-primary">Contact</button>
+                            </nav>
+
+                            <div class="card">
+                                <h2>Welcome to Your Site</h2>
+                                <p>This is how your content will look with the current customization settings. The primary color is used for headings and buttons, while the text color ensures good readability.</p>
+                                <p class="accent">This text uses the accent color to highlight important information.</p>
+                                <p class="secondary">Secondary color can be used for less prominent elements.</p>
+                            </div>
+
+                            <div class="card">
+                                <h3>Typography Preview</h3>
+                                <p>Your chosen fonts and spacing create a unique reading experience. The heading font gives character to your titles, while the body font ensures excellent readability for longer content.</p>
+                                <h4>Subheading Example</h4>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            </div>
+
+                            <footer style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+                                <p>&copy; 2024 Your Website. All rights reserved.</p>
+                            </footer>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            }
+        }
+
+        // Tab switching functions
+        function switchCustomizationTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.customization-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.customization-tab').forEach(tab => {
+                tab.classList.remove('active', 'border-primary-500', 'text-primary-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected content
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+
+            // Activate selected tab
+            event.target.classList.add('active', 'border-primary-500', 'text-primary-600');
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+        }
+
+        function setPreviewDevice(device) {
+            const frame = document.getElementById('preview-frame');
+            const buttons = document.querySelectorAll('.preview-device');
+            
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active', 'bg-primary-100', 'text-primary-600'));
+            
+            // Add active class to clicked button
+            event.target.closest('.preview-device').classList.add('active', 'bg-primary-100', 'text-primary-600');
+            
+            // Adjust frame size
+            switch(device) {
+                case 'desktop':
+                    frame.style.width = '100%';
+                    break;
+                case 'tablet':
+                    frame.style.width = '768px';
+                    break;
+                case 'mobile':
+                    frame.style.width = '375px';
+                    break;
+            }
+        }
+
+        function showAdvancedOptions() {
+            document.getElementById('advanced-modal').classList.remove('hidden');
+        }
+
+        function closeAdvancedOptions() {
+            document.getElementById('advanced-modal').classList.add('hidden');
+        }
+
+        function saveAdvancedOptions() {
+            // Get advanced options values
+            const customCSS = document.getElementById('custom-css').value;
+            const customJS = document.getElementById('custom-js').value;
+            const headerCode = document.getElementById('header-code').value;
+            const footerCode = document.getElementById('footer-code').value;
+
+            // Store in customizer
+            window.customizer.customization.advanced = {
+                custom_css: customCSS,
+                custom_js: customJS,
+                header_code: headerCode,
+                footer_code: footerCode
+            };
+
+            closeAdvancedOptions();
+            UIComponents.showNotification('Advanced options saved!', 'success');
+        }
+
+        function resetColors() {
+            const defaults = {
+                'primary-color': '#3b82f6',
+                'secondary-color': '#10b981',
+                'accent-color': '#f59e0b',
+                'background-color': '#ffffff',
+                'text-color': '#1f2937'
+            };
+
+            Object.entries(defaults).forEach(([id, value]) => {
+                document.getElementById(id).value = value;
+            });
+
+            window.customizer.updatePreview();
+        }
+
+        function previewChanges() {
+            window.open('/?preview=1&theme=' + window.customizer.currentTheme, '_blank');
+        }
+
+        async function saveCustomization() {
+            const customization = window.customizer.gatherCustomization();
+            
+            try {
+                const response = await fetch(`/api/v1/themes/${window.customizer.currentTheme}/customization`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(customization)
+                });
+
+                if (response.ok) {
+                    UIComponents.showNotification('Customization saved successfully!', 'success');
+                } else {
+                    throw new Error('Failed to save customization');
+                }
+            } catch (error) {
+                console.error('Error saving customization:', error);
+                UIComponents.showNotification('Failed to save customization', 'error');
+            }
+        }
+
+        // Initialize customizer when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.customizer = new ThemeCustomizer();
+        });
+    </script>
+</body>
+</html>
