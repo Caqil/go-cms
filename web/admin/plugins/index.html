@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plugin Management - CMS Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -23,135 +24,508 @@
         }
     </script>
 </head>
-<body class="h-full">
+<body class="h-full" x-data="pluginManager()">
     <div class="min-h-full">
-        <!-- Include the same sidebar structure -->
-        <!-- For brevity, using simplified layout -->
-        <div class="flex">
-            <!-- Sidebar placeholder -->
-            <div class="w-64 bg-gray-800 min-h-screen">
-                <div class="p-4">
-                    <h1 class="text-white text-lg font-semibold">CMS Admin</h1>
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+            <div class="flex-1 flex flex-col min-h-0 bg-gray-800">
+                <div class="flex items-center h-16 flex-shrink-0 px-4 bg-gray-900">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h1 class="ml-3 text-white text-lg font-semibold">CMS Admin</h1>
+                    </div>
                 </div>
-                <nav class="mt-8">
-                    <a href="../index.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
-                        ← Back to Dashboard
-                    </a>
-                </nav>
-            </div>
-
-            <!-- Main content -->
-            <div class="flex-1">
-                <div class="p-8">
-                    <!-- Header -->
-                    <div class="sm:flex sm:items-center">
-                        <div class="sm:flex-auto">
-                            <h1 class="text-2xl font-semibold text-gray-900">Plugin Management</h1>
-                            <p class="mt-2 text-sm text-gray-700">Manage installed plugins and add new functionality to your CMS.</p>
-                        </div>
-                        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                            <button type="button" onclick="location.href='upload.html'" class="inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 sm:w-auto">
-                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                Upload Plugin
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Filters -->
-                    <div class="mt-6 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                        <div class="flex-1">
-                            <label for="search" class="sr-only">Search plugins</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                </div>
-                                <input id="search" name="search" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm" placeholder="Search plugins..." type="search">
-                            </div>
-                        </div>
-                        <div>
-                            <select id="status-filter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Plugin Grid -->
-                    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" id="plugins-grid">
-                        <!-- Plugin cards will be loaded here -->
-                    </div>
-
-                    <!-- Loading State -->
-                    <div id="loading-state" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <div class="animate-pulse bg-white overflow-hidden shadow rounded-lg">
-                            <div class="px-4 py-5 sm:p-6">
-                                <div class="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
-                                <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
-                                <div class="h-3 bg-gray-300 rounded w-full mb-4"></div>
-                                <div class="flex space-x-2">
-                                    <div class="h-8 bg-gray-300 rounded w-16"></div>
-                                    <div class="h-8 bg-gray-300 rounded w-16"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="empty-state" class="hidden text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No plugins found</h3>
-                        <p class="mt-1 text-sm text-gray-500">Get started by uploading your first plugin.</p>
-                        <div class="mt-6">
-                            <button type="button" onclick="location.href='upload.html'" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                Upload Plugin
-                            </button>
-                        </div>
-                    </div>
+                <div class="flex-1 flex flex-col overflow-y-auto">
+                    <nav class="flex-1 px-2 py-4 bg-gray-800 space-y-1" id="sidebar-nav">
+                        <!-- Navigation will be loaded dynamically -->
+                    </nav>
                 </div>
             </div>
         </div>
+
+        <!-- Main content -->
+        <div class="md:pl-64 flex flex-col flex-1">
+            <!-- Top navigation -->
+            <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
+                <div class="flex-1 px-4 flex justify-between items-center">
+                    <div class="flex-1 flex">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                            Plugin Management
+                        </h2>
+                    </div>
+                    <div class="ml-4 flex items-center md:ml-6 space-x-4">
+                        <!-- System Info -->
+                        <button @click="showSystemInfo = true" class="text-gray-400 hover:text-gray-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </button>
+                        <!-- Hot Reload -->
+                        <button @click="hotReload()" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span>Hot Reload</span>
+                        </button>
+                        <!-- Upload Plugin -->
+                        <button @click="showUploadModal = true" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span>Upload Plugin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content area -->
+            <main class="flex-1">
+                <div class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+                        
+                        <!-- System Status -->
+                        <div class="mb-8 bg-white overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">System Status</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Plugin system information</p>
+                                    </div>
+                                    <button @click="cleanupCache()" class="text-sm text-gray-500 hover:text-gray-700">
+                                        Clean Cache
+                                    </button>
+                                </div>
+                                <div class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-3" x-show="systemInfo">
+                                    <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+                                        <div class="p-5">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-5 w-0 flex-1">
+                                                    <dl>
+                                                        <dt class="text-sm font-medium text-gray-500 truncate">Platform</dt>
+                                                        <dd class="text-lg font-medium text-gray-900" x-text="systemInfo?.platform || 'Loading...'"></dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+                                        <div class="p-5">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-5 w-0 flex-1">
+                                                    <dl>
+                                                        <dt class="text-sm font-medium text-gray-500 truncate">Go Version</dt>
+                                                        <dd class="text-lg font-medium text-gray-900" x-text="systemInfo?.compiler?.version || 'Loading...'"></dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+                                        <div class="p-5">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-5 w-0 flex-1">
+                                                    <dl>
+                                                        <dt class="text-sm font-medium text-gray-500 truncate">Loaded Plugins</dt>
+                                                        <dd class="text-lg font-medium text-gray-900" x-text="plugins.length"></dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plugin Grid -->
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            <template x-for="plugin in plugins" :key="plugin.name">
+                                <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200">
+                                    <div class="p-5">
+                                        <!-- Plugin Header -->
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="flex-shrink-0">
+                                                    <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                                                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-lg font-medium text-gray-900" x-text="plugin.name"></h3>
+                                                    <p class="text-sm text-gray-500" x-text="'v' + plugin.version"></p>
+                                                </div>
+                                            </div>
+                                            <!-- Status Badge -->
+                                            <div class="flex items-center space-x-2">
+                                                <span :class="plugin.is_loaded ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                                    <span :class="plugin.is_loaded ? 'bg-green-400' : 'bg-gray-400'" class="w-1.5 h-1.5 mr-1.5 rounded-full"></span>
+                                                    <span x-text="plugin.is_loaded ? 'Loaded' : 'Unloaded'"></span>
+                                                </span>
+                                                <span :class="plugin.is_active ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                                    <span x-text="plugin.is_active ? 'Active' : 'Inactive'"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Plugin Description -->
+                                        <p class="text-sm text-gray-600 mb-4" x-text="plugin.description || 'No description available'"></p>
+
+                                        <!-- Plugin Actions -->
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex space-x-2">
+                                                <!-- Toggle Active -->
+                                                <button @click="togglePlugin(plugin.name)" 
+                                                        :class="plugin.is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'"
+                                                        class="text-white px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200">
+                                                    <span x-text="plugin.is_active ? 'Deactivate' : 'Activate'"></span>
+                                                </button>
+                                                
+                                                <!-- Reload Plugin -->
+                                                <button @click="reloadPlugin(plugin.name)" 
+                                                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200">
+                                                    Reload
+                                                </button>
+                                            </div>
+
+                                            <!-- Plugin Menu -->
+                                            <div class="relative" x-data="{ open: false }">
+                                                <button @click="open = !open" class="text-gray-400 hover:text-gray-600">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                                    </svg>
+                                                </button>
+                                                <div x-show="open" @click.away="open = false" 
+                                                     class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                                    <button @click="viewPluginDetails(plugin); open = false" 
+                                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        View Details
+                                                    </button>
+                                                    <button @click="editPluginSettings(plugin); open = false" 
+                                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        Settings
+                                                    </button>
+                                                    <button @click="deletePlugin(plugin.name); open = false" 
+                                                            class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Author & Website -->
+                                        <div class="mt-4 pt-4 border-t border-gray-200">
+                                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                                <span x-text="'By ' + (plugin.author || 'Unknown')"></span>
+                                                <span x-text="formatDate(plugin.created_at)"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div x-show="plugins.length === 0" class="text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No plugins installed</h3>
+                            <p class="mt-1 text-sm text-gray-500">Get started by uploading your first plugin.</p>
+                            <div class="mt-6">
+                                <button @click="showUploadModal = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    Upload Plugin
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
-    <!-- Plugin Settings Modal -->
-    <div class="fixed inset-0 z-10 overflow-y-auto hidden" id="settings-modal">
+    <!-- Upload Modal -->
+    <div x-show="showUploadModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-                <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Plugin Settings
-                        </h3>
-                        <div class="mt-4">
-                            <form id="settings-form" class="space-y-4">
-                                <!-- Settings fields will be loaded here -->
-                            </form>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form @submit.prevent="uploadPlugin()">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                    Upload Plugin
+                                </h3>
+                                
+                                <!-- File Upload Area -->
+                                <div class="mt-4">
+                                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors duration-200"
+                                         @dragover.prevent
+                                         @drop.prevent="handleFileDrop($event)">
+                                        <div class="space-y-1 text-center">
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <div class="flex text-sm text-gray-600">
+                                                <label class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
+                                                    <span>Upload a file</span>
+                                                    <input type="file" x-ref="fileInput" @change="handleFileSelect($event)" accept=".zip" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">ZIP files up to 100MB</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Selected File -->
+                                    <div x-show="selectedFile" class="mt-4 p-3 bg-gray-50 rounded-md">
+                                        <div class="flex items-center space-x-3">
+                                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-gray-900" x-text="selectedFile?.name"></p>
+                                                <p class="text-sm text-gray-500" x-text="formatFileSize(selectedFile?.size)"></p>
+                                            </div>
+                                            <button type="button" @click="clearFile()" class="text-gray-400 hover:text-gray-600">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upload Progress -->
+                                <div x-show="uploadProgress > 0 && uploadProgress < 100" class="mt-4">
+                                    <div class="bg-gray-200 rounded-full h-2">
+                                        <div class="bg-primary-600 h-2 rounded-full transition-all duration-300" :style="`width: ${uploadProgress}%`"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1" x-text="`Uploading... ${uploadProgress}%`"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" 
+                                :disabled="!selectedFile || isUploading"
+                                :class="(!selectedFile || isUploading) ? 'bg-gray-300 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'"
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white sm:ml-3 sm:w-auto sm:text-sm">
+                            <span x-show="!isUploading">Upload Plugin</span>
+                            <span x-show="isUploading" class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Uploading...
+                            </span>
+                        </button>
+                        <button type="button" 
+                                @click="showUploadModal = false; clearFile()"
+                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plugin Details Modal -->
+    <div x-show="showDetailsModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" x-text="selectedPlugin?.name + ' Details'">
+                            </h3>
+                            
+                            <div x-show="selectedPlugin" class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Version</label>
+                                        <p class="mt-1 text-sm text-gray-900" x-text="selectedPlugin?.version"></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Author</label>
+                                        <p class="mt-1 text-sm text-gray-900" x-text="selectedPlugin?.author || 'Unknown'"></p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                                    <p class="mt-1 text-sm text-gray-900" x-text="selectedPlugin?.description || 'No description available'"></p>
+                                </div>
+                                
+                                <div x-show="selectedPlugin?.website">
+                                    <label class="block text-sm font-medium text-gray-700">Website</label>
+                                    <a :href="selectedPlugin?.website" target="_blank" class="mt-1 text-sm text-primary-600 hover:text-primary-500" x-text="selectedPlugin?.website"></a>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                                        <span :class="selectedPlugin?.is_active ? 'text-green-600' : 'text-red-600'" class="mt-1 text-sm font-medium" x-text="selectedPlugin?.is_active ? 'Active' : 'Inactive'"></span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Loaded</label>
+                                        <span :class="selectedPlugin?.is_loaded ? 'text-green-600' : 'text-gray-600'" class="mt-1 text-sm font-medium" x-text="selectedPlugin?.is_loaded ? 'Yes' : 'No'"></span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">API Endpoints</label>
+                                    <div class="bg-gray-50 rounded-md p-3">
+                                        <div class="space-y-1 text-sm text-gray-600">
+                                            <div x-text="`GET /api/v1/plugins/${selectedPlugin?.name?.toLowerCase()}/`"></div>
+                                            <div x-text="`GET /api/v1/plugins/${selectedPlugin?.name?.toLowerCase()}/info`"></div>
+                                            <div x-text="`GET /api/v1/plugins/${selectedPlugin?.name?.toLowerCase()}/status`"></div>
+                                            <div x-text="`POST /api/v1/plugins/${selectedPlugin?.name?.toLowerCase()}/action`"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                    <button type="button" id="save-settings" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Save
-                    </button>
-                    <button type="button" id="cancel-settings" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:w-auto sm:text-sm">
-                        Cancel
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" 
+                            @click="showDetailsModal = false"
+                            class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Close
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="../assets/js/plugins.js"></script>
+    <!-- System Info Modal -->
+    <div x-show="showSystemInfo" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">System Information</h3>
+                            
+                            <div x-show="systemInfo" class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Platform</label>
+                                        <p class="mt-1 text-sm text-gray-900" x-text="systemInfo?.platform"></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Plugin Support</label>
+                                        <span :class="systemInfo?.supported ? 'text-green-600' : 'text-red-600'" class="mt-1 text-sm font-medium" x-text="systemInfo?.supported ? 'Supported' : 'Not Supported'"></span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Go Compiler</label>
+                                    <p class="mt-1 text-sm text-gray-900" x-text="systemInfo?.compiler?.version"></p>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">OS</label>
+                                        <p class="mt-1 text-sm text-gray-900" x-text="systemInfo?.compiler?.goos"></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Architecture</label>
+                                        <p class="mt-1 text-sm text-gray-900" x-text="systemInfo?.compiler?.goarch"></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">CGO</label>
+                                        <span :class="systemInfo?.compiler?.cgo_enabled ? 'text-green-600' : 'text-red-600'" class="mt-1 text-sm font-medium" x-text="systemInfo?.compiler?.cgo_enabled ? 'Enabled' : 'Disabled'"></span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Build Directory</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-mono" x-text="systemInfo?.compiler?.build_dir"></p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Loaded Plugins</label>
+                                    <p class="mt-1 text-sm text-gray-900" x-text="systemInfo?.loaded_count + ' plugins currently loaded'"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" 
+                            @click="showSystemInfo = false"
+                            class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div x-show="notification.show" 
+         x-transition:enter="transform ease-out duration-300 transition"
+         x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+         x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+         x-transition:leave="transition ease-in duration-100"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed top-0 right-0 mt-4 mr-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 z-50">
+        <div class="p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg x-show="notification.type === 'success'" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <svg x-show="notification.type === 'error'" class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900" x-text="notification.title"></p>
+                    <p class="mt-1 text-sm text-gray-500" x-text="notification.message"></p>
+                </div>
+                <div class="ml-4 flex-shrink-0 flex">
+                    <button @click="notification.show = false" class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/plugins.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </body>
 </html>

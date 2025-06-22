@@ -1,0 +1,94 @@
+# Go CMS .gitignore
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Go build artifacts
+cms
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test files
+*.test
+*.out
+
+# Go coverage files
+*.cover
+coverage.out
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Build directories
+build/
+dist/
+bin/
+
+# Plugin build artifacts
+plugins/*.so
+
+# Log files
+logs/
+*.log
+
+# Upload files
+uploads/
+temp/
+
+# Database files (if using local storage)
+data/
+*.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if using for frontend build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Dependency directories
+vendor/
+
+# Backup files
+*.bak
+*.backup
+
+# Certificate files
+*.pem
+*.key
+*.crt
+*.csr
+
+# Local configuration
+config.local.json
+settings.local.json

@@ -133,8 +133,8 @@ func (d *DashboardManager) getSystemStats() (*SystemStats, error) {
 	allThemes := d.themeManager.GetAllThemes()
 	totalThemes := len(allThemes)
 	activeTheme := ""
-	if activeThemeObj := d.themeManager.GetActiveTheme(); activeThemeObj != nil {
-		activeTheme = activeThemeObj.Name
+	if activeThemeName := d.themeManager.GetActiveTheme(); activeThemeName != "" {
+		activeTheme = activeThemeName
 	}
 
 	// Calculate uptime

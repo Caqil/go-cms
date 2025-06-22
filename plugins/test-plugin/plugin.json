@@ -1,0 +1,12 @@
+{
+  "name": "my-awesome-plugin",
+  "version": "1.0.0",
+  "description": "An awesome plugin for the CMS",
+  "author": "Your Name",
+  "website": "https://example.com",
+  "main": "main.go",
+  "dependencies": {
+    "go": "1.23",
+    "gin": "v1.9.1"
+  }
+}

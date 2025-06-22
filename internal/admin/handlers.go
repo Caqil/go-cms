@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"go-cms/internal/database"
@@ -22,6 +23,7 @@ type Handler struct {
 	db            *database.DB
 	pluginManager *plugins.Manager
 	themeManager  *themes.Manager
+	dashboard     *DashboardManager
 }
 
 func NewHandler(db *database.DB, pluginManager *plugins.Manager, themeManager *themes.Manager) *Handler {
@@ -29,91 +31,32 @@ func NewHandler(db *database.DB, pluginManager *plugins.Manager, themeManager *t
 		db:            db,
 		pluginManager: pluginManager,
 		themeManager:  themeManager,
+		dashboard:     NewDashboardManager(db, pluginManager, themeManager),
 	}
 }
 
-// Dashboard endpoint
+// GetDashboard returns dashboard statistics
 func (h *Handler) GetDashboard(c *gin.Context) {
-	// Get plugin statistics
-	pluginCount := len(h.pluginManager.GetAllPlugins())
-
-	// Get theme statistics
-	themeCount := len(h.themeManager.GetAllThemes())
-
-	// Get user count from database
-	userCollection := h.db.Collection("users")
-	userCount, _ := userCollection.CountDocuments(context.Background(), bson.M{})
-
-	c.JSON(http.StatusOK, gin.H{
-		"stats": gin.H{
-			"plugins": pluginCount,
-			"themes":  themeCount,
-			"users":   userCount,
-		},
-		"recent_activity": []gin.H{}, // Can be extended with actual activity
-	})
-}
-
-// Get admin menu with plugin contributions
-func (h *Handler) GetMenu(c *gin.Context) {
-	// Base admin menu items
-	baseMenu := []plugins.AdminMenuItem{
-		{
-			ID:    "dashboard",
-			Title: "Dashboard",
-			Icon:  "dashboard",
-			URL:   "/admin/dashboard",
-			Order: 1,
-		},
-		{
-			ID:    "plugins",
-			Title: "Plugins",
-			Icon:  "puzzle-piece",
-			URL:   "/admin/plugins",
-			Order: 2,
-			Children: []plugins.AdminMenuItem{
-				{
-					ID:    "plugin-list",
-					Title: "Installed Plugins",
-					URL:   "/admin/plugins",
-					Order: 1,
-				},
-				{
-					ID:    "plugin-upload",
-					Title: "Upload Plugin",
-					URL:   "/admin/plugins/upload",
-					Order: 2,
-				},
-			},
-		},
-		{
-			ID:    "themes",
-			Title: "Themes",
-			Icon:  "palette",
-			URL:   "/admin/themes",
-			Order: 3,
-		},
-		{
-			ID:    "settings",
-			Title: "Settings",
-			Icon:  "settings",
-			URL:   "/admin/settings",
-			Order: 100,
-		},
+	dashboardData, err := h.dashboard.GetDashboardData()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dashboard data"})
+		return
 	}
 
-	// Get plugin menu items
-	pluginMenuItems := h.pluginManager.GetAdminMenuItems()
+	c.JSON(http.StatusOK, dashboardData)
+}
 
-	// Combine base menu with plugin menus
-	allMenuItems := append(baseMenu, pluginMenuItems...)
+// GetMenu returns the admin menu structure
+func (h *Handler) GetMenu(c *gin.Context) {
+	menuManager := NewMenuManager(h.pluginManager)
+	menu := menuManager.GetFullMenu()
 
 	c.JSON(http.StatusOK, gin.H{
-		"menu": allMenuItems,
+		"menu": menu,
 	})
 }
 
-// Get all plugins with their settings
+// GetPlugins returns list of all plugins
 func (h *Handler) GetPlugins(c *gin.Context) {
 	// Get loaded plugins
 	loadedPlugins := h.pluginManager.GetAllPlugins()
@@ -122,7 +65,7 @@ func (h *Handler) GetPlugins(c *gin.Context) {
 	collection := h.db.Collection("plugins")
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plugins"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plugins from database"})
 		return
 	}
 	defer cursor.Close(context.Background())
@@ -133,110 +76,152 @@ func (h *Handler) GetPlugins(c *gin.Context) {
 		return
 	}
 
-	// Combine loaded plugins with database metadata
-	var response []gin.H
-	for name, plugin := range loadedPlugins {
-		info := plugin.GetInfo()
-		settings := plugin.GetSettings()
+	// Merge loaded plugins with database metadata
+	var responsePlugins []map[string]interface{}
 
-		// Find corresponding database record
-		var dbPlugin *models.PluginMetadata
-		for _, p := range dbPlugins {
-			if p.Name == name {
-				dbPlugin = &p
-				break
-			}
+	for _, dbPlugin := range dbPlugins {
+		pluginData := map[string]interface{}{
+			"name":        dbPlugin.Name,
+			"version":     dbPlugin.Version,
+			"description": dbPlugin.Description,
+			"author":      dbPlugin.Author,
+			"website":     dbPlugin.Website,
+			"is_active":   dbPlugin.IsActive,
+			"created_at":  dbPlugin.CreatedAt,
+			"updated_at":  dbPlugin.UpdatedAt,
+			"is_loaded":   false,
 		}
 
-		pluginData := gin.H{
-			"name":        info.Name,
-			"version":     info.Version,
-			"description": info.Description,
-			"author":      info.Author,
-			"website":     info.Website,
-			"is_loaded":   true,
-			"settings":    settings,
+		// Check if plugin is currently loaded
+		if plugin, exists := loadedPlugins[dbPlugin.Name]; exists {
+			pluginData["is_loaded"] = true
+			pluginData["info"] = plugin.GetInfo()
+			pluginData["settings"] = plugin.GetSettings()
 		}
 
-		if dbPlugin != nil {
-			pluginData["is_active"] = dbPlugin.IsActive
-			pluginData["id"] = dbPlugin.ID.Hex()
-		}
+		responsePlugins = append(responsePlugins, pluginData)
+	}
 
-		response = append(response, pluginData)
+	// Get system information
+	systemInfo, err := h.pluginManager.GetSystemInfo()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get system info"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"plugins": response,
+		"plugins":     responsePlugins,
+		"system_info": systemInfo,
 	})
 }
 
-// Upload and install plugin
+// UploadPlugin handles plugin zip file uploads
 func (h *Handler) UploadPlugin(c *gin.Context) {
 	// Get uploaded file
 	file, header, err := c.Request.FormFile("plugin")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No plugin file provided"})
 		return
 	}
 	defer file.Close()
 
 	// Validate file extension
-	if filepath.Ext(header.Filename) != ".so" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type. Only .so files are allowed"})
+	if !strings.HasSuffix(strings.ToLower(header.Filename), ".zip") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Only .zip files are allowed"})
 		return
 	}
 
-	// Create plugins directory if it doesn't exist
-	pluginsDir := "./plugins"
-	if err := os.MkdirAll(pluginsDir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create plugins directory"})
+	// Create temporary directory for upload
+	tempDir := "./temp"
+	if err := os.MkdirAll(tempDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temp directory"})
 		return
 	}
 
-	// Save file
-	pluginPath := filepath.Join(pluginsDir, header.Filename)
-	dst, err := os.Create(pluginPath)
+	// Save uploaded file temporarily
+	tempPath := filepath.Join(tempDir, header.Filename)
+	dst, err := os.Create(tempPath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save plugin file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
 		return
 	}
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy plugin file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy uploaded file"})
 		return
 	}
 
-	// Load the plugin
-	if err := h.pluginManager.LoadPlugin(pluginPath); err != nil {
-		// Remove the file if loading failed
-		os.Remove(pluginPath)
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to load plugin: %v", err)})
+	// Extract plugin name from filename (remove .zip extension)
+	pluginName := strings.TrimSuffix(header.Filename, ".zip")
+
+	// Validate plugin name
+	if !isValidPluginName(pluginName) {
+		os.Remove(tempPath)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plugin name. Use only lowercase letters, numbers, and hyphens"})
 		return
 	}
 
-	// Get plugin info and save to database
-	pluginName := filepath.Base(header.Filename[:len(header.Filename)-3]) // Remove .so extension
-	if plugin, exists := h.pluginManager.GetPlugin(pluginName); exists {
-		info := plugin.GetInfo()
-		settings := plugin.GetSettings()
+	// Validate the zip file
+	validationResult, err := h.pluginManager.ValidatePlugin(tempPath)
+	if err != nil {
+		os.Remove(tempPath)
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Plugin validation failed: %v", err)})
+		return
+	}
 
-		pluginMetadata := models.PluginMetadata{
-			Name:        info.Name,
-			Version:     info.Version,
-			Description: info.Description,
-			Author:      info.Author,
-			Website:     info.Website,
-			Filename:    header.Filename,
-			IsActive:    true,
-			Settings:    convertToModelSettings(settings),
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
-		}
+	if !validationResult.IsValid {
+		os.Remove(tempPath)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":    "Plugin validation failed",
+			"details":  validationResult.Errors,
+			"warnings": validationResult.Warnings,
+		})
+		return
+	}
 
-		collection := h.db.Collection("plugins")
-		_, err := collection.InsertOne(context.Background(), pluginMetadata)
+	// Install the plugin
+	if err := h.pluginManager.InstallPluginFromZip(tempPath, pluginName); err != nil {
+		os.Remove(tempPath)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Plugin installation failed: %v", err)})
+		return
+	}
+
+	// Get plugin info for database storage
+	pluginInfo, err := h.pluginManager.GetPluginInfo(pluginName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Plugin installed but failed to get info"})
+		return
+	}
+
+	// Get plugin instance for settings
+	var settings []models.PluginSetting
+	if plugin, exists := h.pluginManager.GetPlugin(pluginInfo.Name); exists {
+		pluginSettings := plugin.GetSettings()
+		settings = convertToModelSettings(pluginSettings)
+	}
+
+	// Save plugin metadata to database
+	pluginMetadata := models.PluginMetadata{
+		Name:        pluginInfo.Name,
+		Version:     pluginInfo.Version,
+		Description: pluginInfo.Description,
+		Author:      pluginInfo.Author,
+		Website:     pluginInfo.Website,
+		Filename:    header.Filename,
+		IsActive:    true,
+		Settings:    settings,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	collection := h.db.Collection("plugins")
+
+	// Upsert the plugin metadata
+	filter := bson.M{"name": pluginInfo.Name}
+	_, err = collection.ReplaceOne(context.Background(), filter, pluginMetadata)
+	if err != nil {
+		_, err = collection.InsertOne(context.Background(), pluginMetadata)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save plugin metadata"})
 			return
@@ -244,12 +229,14 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "Plugin uploaded and installed successfully",
-		"filename": header.Filename,
+		"message":     "Plugin uploaded and installed successfully",
+		"plugin_name": pluginInfo.Name,
+		"filename":    header.Filename,
+		"version":     pluginInfo.Version,
 	})
 }
 
-// Toggle plugin activation
+// TogglePlugin activates/deactivates a plugin
 func (h *Handler) TogglePlugin(c *gin.Context) {
 	pluginName := c.Param("name")
 
@@ -280,11 +267,13 @@ func (h *Handler) TogglePlugin(c *gin.Context) {
 
 	// If deactivating, unload the plugin
 	if !newStatus {
-		h.pluginManager.UnloadPlugin(pluginName)
+		if err := h.pluginManager.UnloadPlugin(pluginName); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unload plugin"})
+			return
+		}
 	} else {
-		// If activating, reload the plugin
-		pluginPath := filepath.Join("./plugins", plugin.Filename)
-		if err := h.pluginManager.LoadPlugin(pluginPath); err != nil {
+		// If activating, load the plugin
+		if err := h.pluginManager.LoadPlugin(pluginName); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load plugin"})
 			return
 		}
@@ -296,99 +285,21 @@ func (h *Handler) TogglePlugin(c *gin.Context) {
 	})
 }
 
-// Get plugin settings
-func (h *Handler) GetPluginSettings(c *gin.Context) {
-	pluginName := c.Param("name")
-
-	collection := h.db.Collection("plugins")
-	var plugin models.PluginMetadata
-	err := collection.FindOne(context.Background(), bson.M{"name": pluginName}).Decode(&plugin)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Plugin not found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"plugin":   plugin.Name,
-		"settings": plugin.Settings,
-	})
-}
-
-// Update plugin settings
-func (h *Handler) UpdatePluginSettings(c *gin.Context) {
-	pluginName := c.Param("name")
-
-	var settingsUpdate map[string]interface{}
-	if err := c.ShouldBindJSON(&settingsUpdate); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
-	}
-
-	collection := h.db.Collection("plugins")
-
-	// Get current plugin settings
-	var plugin models.PluginMetadata
-	err := collection.FindOne(context.Background(), bson.M{"name": pluginName}).Decode(&plugin)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Plugin not found"})
-		return
-	}
-
-	// Update settings values
-	for i, setting := range plugin.Settings {
-		if newValue, exists := settingsUpdate[setting.Key]; exists {
-			plugin.Settings[i].Value = newValue
-		}
-	}
-
-	// Save to database
-	update := bson.M{
-		"$set": bson.M{
-			"settings":   plugin.Settings,
-			"updated_at": time.Now(),
-		},
-	}
-
-	_, err = collection.UpdateOne(context.Background(), bson.M{"name": pluginName}, update)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update settings"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "Settings updated successfully",
-		"settings": plugin.Settings,
-	})
-}
-
-// Delete plugin
+// DeletePlugin removes a plugin completely
 func (h *Handler) DeletePlugin(c *gin.Context) {
 	pluginName := c.Param("name")
 
-	// Unload plugin first
-	h.pluginManager.UnloadPlugin(pluginName)
-
+	// Remove from database
 	collection := h.db.Collection("plugins")
-
-	// Get plugin metadata to find filename
-	var plugin models.PluginMetadata
-	err := collection.FindOne(context.Background(), bson.M{"name": pluginName}).Decode(&plugin)
+	_, err := collection.DeleteOne(context.Background(), bson.M{"name": pluginName})
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Plugin not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove plugin from database"})
 		return
 	}
 
-	// Delete file
-	pluginPath := filepath.Join("./plugins", plugin.Filename)
-	if err := os.Remove(pluginPath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete plugin file"})
-		return
-	}
-
-	// Delete from database
-	_, err = collection.DeleteOne(context.Background(), bson.M{"name": pluginName})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete plugin metadata"})
+	// Uninstall the plugin (removes files and unloads)
+	if err := h.pluginManager.UninstallPlugin(pluginName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to uninstall plugin: %v", err)})
 		return
 	}
 
@@ -397,11 +308,142 @@ func (h *Handler) DeletePlugin(c *gin.Context) {
 	})
 }
 
-// Helper function to convert plugin settings
+// ReloadPlugin recompiles and reloads a plugin
+func (h *Handler) ReloadPlugin(c *gin.Context) {
+	pluginName := c.Param("name")
+
+	if err := h.pluginManager.ReloadPlugin(pluginName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to reload plugin: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Plugin reloaded successfully",
+	})
+}
+
+// GetPluginSettings returns settings for a specific plugin
+func (h *Handler) GetPluginSettings(c *gin.Context) {
+	pluginName := c.Param("name")
+
+	settings, err := h.pluginManager.GetPluginSettings(pluginName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"plugin":   pluginName,
+		"settings": settings,
+	})
+}
+
+// UpdatePluginSettings updates settings for a specific plugin
+func (h *Handler) UpdatePluginSettings(c *gin.Context) {
+	pluginName := c.Param("name")
+
+	var newSettings map[string]interface{}
+	if err := c.ShouldBindJSON(&newSettings); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get current plugin settings
+	currentSettings, err := h.pluginManager.GetPluginSettings(pluginName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate and update settings
+	updatedSettings := make([]plugins.PluginSetting, len(currentSettings))
+	copy(updatedSettings, currentSettings)
+
+	for i, setting := range updatedSettings {
+		if newValue, exists := newSettings[setting.Key]; exists {
+			updatedSettings[i].Value = newValue
+		}
+	}
+
+	// Save to database
+	collection := h.db.Collection("plugins")
+	update := bson.M{
+		"$set": bson.M{
+			"settings":   convertToModelSettings(updatedSettings),
+			"updated_at": time.Now(),
+		},
+	}
+
+	_, err = collection.UpdateOne(context.Background(), bson.M{"name": pluginName}, update)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save settings"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Settings updated successfully",
+		"settings": updatedSettings,
+	})
+}
+
+// GetSystemInfo returns system information for plugin development
+func (h *Handler) GetSystemInfo(c *gin.Context) {
+	systemInfo, err := h.pluginManager.GetSystemInfo()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get system info"})
+		return
+	}
+
+	c.JSON(http.StatusOK, systemInfo)
+}
+
+// CleanupCache removes old compiled plugin files
+func (h *Handler) CleanupCache(c *gin.Context) {
+	// Default to 7 days
+	maxAge := 7 * 24 * time.Hour
+
+	if err := h.pluginManager.CleanupCache(maxAge); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to cleanup cache"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Cache cleaned up successfully",
+	})
+}
+
+// HotReloadAll reloads all plugins without restarting the server
+func (h *Handler) HotReloadAll(c *gin.Context) {
+	if err := h.pluginManager.HotReload(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Hot reload failed: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "All plugins reloaded successfully",
+	})
+}
+
+// Utility functions
+
+func isValidPluginName(name string) bool {
+	if len(name) == 0 || len(name) > 50 {
+		return false
+	}
+
+	for _, char := range name {
+		if !((char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char == '-') {
+			return false
+		}
+	}
+
+	return true
+}
+
 func convertToModelSettings(pluginSettings []plugins.PluginSetting) []models.PluginSetting {
-	var modelSettings []models.PluginSetting
-	for _, setting := range pluginSettings {
-		modelSettings = append(modelSettings, models.PluginSetting{
+	modelSettings := make([]models.PluginSetting, len(pluginSettings))
+	for i, setting := range pluginSettings {
+		modelSettings[i] = models.PluginSetting{
 			Key:         setting.Key,
 			Label:       setting.Label,
 			Type:        setting.Type,
@@ -409,7 +451,7 @@ func convertToModelSettings(pluginSettings []plugins.PluginSetting) []models.Plu
 			Description: setting.Description,
 			Options:     setting.Options,
 			Required:    setting.Required,
-		})
+		}
 	}
 	return modelSettings
 }

@@ -80,31 +80,29 @@ func AdminRequired() gin.HandlerFunc {
 	}
 }
 
-// SuperAdminRequired middleware ensures user has super admin role
 func SuperAdminRequired() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		role, exists := c.Get("role")
+	return gin.HandlerFunc(func(c *gin.Context) {
+		// Get user context
+		userContext, exists := GetUserFromContext(c)
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User role not found"})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "User context not found",
+			})
 			c.Abort()
 			return
 		}
 
-		userRole, ok := role.(string)
-		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid role type"})
-			c.Abort()
-			return
-		}
-
-		if userRole != "super_admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Super admin access required"})
+		// Check if user is super admin
+		if userContext.Role != "super_admin" {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "Super admin access required",
+			})
 			c.Abort()
 			return
 		}
 
 		c.Next()
-	}
+	})
 }
 
 // GetUserFromContext extracts user information from gin context

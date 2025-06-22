@@ -259,12 +259,8 @@ func (m *Manager) setActiveThemeInDB(name string) error {
 
 	return nil
 }
-
-func (m *Manager) GetActiveTheme() *Theme {
-	if theme, exists := m.themes[m.active]; exists {
-		return theme
-	}
-	return nil
+func (m *Manager) GetActiveTheme() string {
+	return m.active
 }
 
 func (m *Manager) GetThemeCustomization(name string) (Customization, error) {
